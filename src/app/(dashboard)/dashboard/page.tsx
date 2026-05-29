@@ -1,5 +1,6 @@
-import { Suspense } from 'react'
 import { DollarSign, TrendingDown, Clock, Users } from 'lucide-react'
+
+export const revalidate = 60 // revalida a cada 60 segundos
 import { Header } from '@/components/layout/header'
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

@@ -2,6 +2,18 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Ignorar rotas estáticas e webhooks
+  if (
+    pathname.startsWith('/api/webhooks') ||
+    pathname.startsWith('/api/lembretes') ||
+    pathname === '/favicon.ico' ||
+    pathname === '/manifest.json'
+  ) {
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -21,18 +33,19 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // Usa getSession (mais rápido) para verificar se está logado
+  const { data: { session } } = await supabase.auth.getSession()
 
-  const isAuthPage = request.nextUrl.pathname.startsWith('/login') ||
-    request.nextUrl.pathname.startsWith('/cadastro')
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/cadastro')
+  const isApiRoute = pathname.startsWith('/api')
 
-  if (!user && !isAuthPage && !request.nextUrl.pathname.startsWith('/api')) {
+  if (!session && !isAuthPage && !isApiRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  if (user && isAuthPage) {
+  if (session && isAuthPage) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
@@ -42,5 +55,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.json|icons/).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.json|icons|public).*)'],
 }
