@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  supabaseId    String    @unique
+  nome          String
+  email         String    @unique
+  telefone      String?
+  profissao     String?
+  asaasId       String?   // ID do profissional no Asaas
+  plano         Plano     @default(STARTER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  clientes      Cliente[]
+  atendimentos  Atendimento[]
+  cobrancas     Cobranca[]
+
+  @@map("users")
+}
+
+model Cliente {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  nome            String
+  telefone        String          // WhatsApp
+  email           String?
+  tipoAtendimento TipoAtendimento
+  valorHonorario  Decimal         @db.Decimal(10, 2)
+  diaVencimento   Int             // 1–28
+  ativo           Boolean         @default(true)
+  asaasId         String?         // ID do cliente no Asaas
+  observacoes     String?
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  atendimentos    Atendimento[]
+  cobrancas       Cobranca[]
+
+  @@map("clientes")
+}
+
+model Atendimento {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clienteId   String
+  cliente     Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  data        DateTime
+  descricao   String?
+  valor       Decimal   @db.Decimal(10, 2)
+  gerarCobranca Boolean @default(true)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  cobranca    Cobranca?
+
+  @@map("atendimentos")
+}
+
+model Cobranca {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clienteId       String
+  cliente         Cliente         @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  atendimentoId   String?         @unique
+  atendimento     Atendimento?    @relation(fields: [atendimentoId], references: [id])
+
+  valor           Decimal         @db.Decimal(10, 2)
+  vencimento      DateTime
+  status          StatusCobranca  @default(PENDENTE)
+  descricao       String?
+
+  // Asaas
+  asaasId         String?         // ID da cobrança no Asaas
+  linkPagamento   String?
+  pixCopiaECola   String?
+  boletoUrl       String?
+
+  // Controle de lembretes
+  lembreteEnviado3d   Boolean   @default(false)
+  lembreteEnviado1d   Boolean   @default(false)
+  lembreteAtraso1d    Boolean   @default(false)
+  lembreteAtraso7d    Boolean   @default(false)
+
+  // Recibo
+  reciboGerado    Boolean     @default(false)
+  reciboUrl       String?
+  pagamentoEm     DateTime?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("cobrancas")
+}
+
+enum Plano {
+  STARTER   // gratuito, até 5 clientes
+  PRO       // R$ 59/mês, até 50 clientes
+  CLINICA   // R$ 129/mês, até 200 clientes
+}
+
+enum TipoAtendimento {
+  SESSAO_AVULSA
+  PACOTE_MENSAL
+  PLANO_FIXO
+}
+
+enum StatusCobranca {
+  PENDENTE
+  PAGO
+  ATRASADO
+  CANCELADO
+  ESTORNADO
+}

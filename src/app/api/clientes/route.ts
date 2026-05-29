@@ -1,0 +1,57 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { prisma } from '@/lib/prisma'
+
+async function getAuthUser() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  return prisma.user.findUnique({ where: { supabaseId: user.id } })
+}
+
+export async function GET() {
+  const user = await getAuthUser()
+  if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+
+  const clientes = await prisma.cliente.findMany({
+    where: { userId: user.id },
+    include: { _count: { select: { atendimentos: true, cobrancas: true } } },
+    orderBy: { nome: 'asc' },
+  })
+
+  return NextResponse.json(clientes.map((c) => ({ ...c, valorHonorario: Number(c.valorHonorario) })))
+}
+
+export async function POST(req: NextRequest) {
+  const user = await getAuthUser()
+  if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+
+  // Verificar limite do plano
+  if (user.plano === 'STARTER') {
+    const count = await prisma.cliente.count({ where: { userId: user.id, ativo: true } })
+    if (count >= 5) {
+      return NextResponse.json(
+        { message: 'Limite de 5 clientes atingido no plano gratuito. Faça upgrade para continuar.' },
+        { status: 403 }
+      )
+    }
+  }
+
+  const body = await req.json()
+
+  const cliente = await prisma.cliente.create({
+    data: {
+      userId: user.id,
+      nome: body.nome,
+      telefone: body.telefone,
+      email: body.email,
+      tipoAtendimento: body.tipoAtendimento,
+      valorHonorario: body.valorHonorario,
+      diaVencimento: body.diaVencimento ?? 5,
+      observacoes: body.observacoes,
+    },
+  })
+
+  return NextResponse.json({ ...cliente, valorHonorario: Number(cliente.valorHonorario) }, { status: 201 })
+}
