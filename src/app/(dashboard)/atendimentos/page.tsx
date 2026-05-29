@@ -25,6 +25,7 @@ async function getData(supabaseId: string) {
     atendimentos: atendimentos.map((a) => ({
       ...a,
       valor: Number(a.valor),
+      descricao: a.descricao ?? undefined,
       data: a.data.toISOString(),
       createdAt: a.createdAt.toISOString(),
       updatedAt: a.updatedAt.toISOString(),
