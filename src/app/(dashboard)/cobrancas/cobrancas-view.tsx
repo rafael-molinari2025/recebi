@@ -11,7 +11,7 @@ import { formatCurrency, formatDate, getStatusLabel, getStatusColor, diasAtraso 
 import { toast } from '@/hooks/use-toast'
 import type { Cobranca } from '@/types'
 
-interface CobrancaComCliente extends Cobranca {
+interface CobrancaComCliente extends Omit<Cobranca, 'cliente'> {
   cliente: { id: string; nome: string; telefone: string }
 }
 
