@@ -40,18 +40,23 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json()
 
-  const cliente = await prisma.cliente.create({
-    data: {
-      userId: user.id,
-      nome: body.nome,
-      telefone: body.telefone,
-      email: body.email,
-      tipoAtendimento: body.tipoAtendimento,
-      valorHonorario: body.valorHonorario,
-      diaVencimento: body.diaVencimento ?? 5,
-      observacoes: body.observacoes,
-    },
-  })
+  try {
+    const cliente = await prisma.cliente.create({
+      data: {
+        userId: user.id,
+        nome: body.nome,
+        telefone: body.telefone,
+        email: body.email || null,
+        tipoAtendimento: body.tipoAtendimento,
+        valorHonorario: body.valorHonorario,
+        diaVencimento: body.diaVencimento ?? 5,
+        observacoes: body.observacoes || null,
+      },
+    })
 
-  return NextResponse.json({ ...cliente, valorHonorario: Number(cliente.valorHonorario) }, { status: 201 })
+    return NextResponse.json({ ...cliente, valorHonorario: Number(cliente.valorHonorario) }, { status: 201 })
+  } catch (err) {
+    console.error('[POST /api/clientes]', err)
+    return NextResponse.json({ message: 'Erro interno ao criar cliente.' }, { status: 500 })
+  }
 }

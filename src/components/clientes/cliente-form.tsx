@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,7 +19,8 @@ interface ClienteFormProps {
 export function ClienteForm({ open, onClose, cliente }: ClienteFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [form, setForm] = useState<CreateClienteInput>({
+
+  const emptyForm = (): CreateClienteInput => ({
     nome: cliente?.nome ?? '',
     telefone: cliente?.telefone ?? '',
     email: cliente?.email ?? '',
@@ -28,6 +29,13 @@ export function ClienteForm({ open, onClose, cliente }: ClienteFormProps) {
     diaVencimento: cliente?.diaVencimento ?? 5,
     observacoes: cliente?.observacoes ?? '',
   })
+
+  const [form, setForm] = useState<CreateClienteInput>(emptyForm)
+
+  useEffect(() => {
+    if (open) setForm(emptyForm())
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, cliente?.id])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

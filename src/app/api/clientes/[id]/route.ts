@@ -19,21 +19,26 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const cliente = await prisma.cliente.findFirst({ where: { id, userId: user.id } })
   if (!cliente) return NextResponse.json({ error: 'Não encontrado' }, { status: 404 })
 
-  const atualizado = await prisma.cliente.update({
-    where: { id },
-    data: {
-      nome: body.nome !== undefined ? body.nome : undefined,
-      telefone: body.telefone !== undefined ? body.telefone : undefined,
-      email: body.email !== undefined ? body.email : undefined,
-      tipoAtendimento: body.tipoAtendimento !== undefined ? body.tipoAtendimento : undefined,
-      valorHonorario: body.valorHonorario !== undefined ? body.valorHonorario : undefined,
-      diaVencimento: body.diaVencimento !== undefined ? body.diaVencimento : undefined,
-      observacoes: body.observacoes !== undefined ? body.observacoes : undefined,
-      ativo: body.ativo !== undefined ? body.ativo : undefined,
-    },
-  })
+  try {
+    const atualizado = await prisma.cliente.update({
+      where: { id },
+      data: {
+        nome: body.nome !== undefined ? body.nome : undefined,
+        telefone: body.telefone !== undefined ? body.telefone : undefined,
+        email: body.email !== undefined ? (body.email || null) : undefined,
+        tipoAtendimento: body.tipoAtendimento !== undefined ? body.tipoAtendimento : undefined,
+        valorHonorario: body.valorHonorario !== undefined ? body.valorHonorario : undefined,
+        diaVencimento: body.diaVencimento !== undefined ? body.diaVencimento : undefined,
+        observacoes: body.observacoes !== undefined ? (body.observacoes || null) : undefined,
+        ativo: body.ativo !== undefined ? body.ativo : undefined,
+      },
+    })
 
-  return NextResponse.json({ ...atualizado, valorHonorario: Number(atualizado.valorHonorario) })
+    return NextResponse.json({ ...atualizado, valorHonorario: Number(atualizado.valorHonorario) })
+  } catch (err) {
+    console.error('[PUT /api/clientes/:id]', err)
+    return NextResponse.json({ message: 'Erro interno ao atualizar cliente.' }, { status: 500 })
+  }
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
