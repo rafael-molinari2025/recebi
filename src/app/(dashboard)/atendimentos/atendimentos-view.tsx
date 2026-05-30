@@ -33,6 +33,7 @@ export function AtendimentosView({ atendimentos, clientes }: Props) {
     clienteId: '',
     data: new Date().toISOString().slice(0, 10),
     descricao: '',
+    notas: '',
     valor: 0,
     gerarCobranca: true,
   })
@@ -65,7 +66,7 @@ export function AtendimentosView({ atendimentos, clientes }: Props) {
       variant: 'success',
     })
     setFormOpen(false)
-    setForm({ clienteId: '', data: new Date().toISOString().slice(0, 10), descricao: '', valor: 0, gerarCobranca: true })
+    setForm({ clienteId: '', data: new Date().toISOString().slice(0, 10), descricao: '', notas: '', valor: 0, gerarCobranca: true })
     router.refresh()
     setLoading(false)
   }
@@ -165,6 +166,17 @@ export function AtendimentosView({ atendimentos, clientes }: Props) {
                 placeholder="Ex.: Sessão de psicoterapia"
                 value={form.descricao}
                 onChange={(e) => setForm({ ...form, descricao: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Notas privadas <span className="text-xs text-gray-400">(não aparecem no recibo)</span></Label>
+              <textarea
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                rows={3}
+                placeholder="Anotações clínicas, observações da sessão..."
+                value={form.notas}
+                onChange={(e) => setForm({ ...form, notas: e.target.value })}
               />
             </div>
 

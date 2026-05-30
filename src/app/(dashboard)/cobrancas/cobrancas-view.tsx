@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageSquare, CheckCircle, FileText, Filter } from 'lucide-react'
+import { MessageSquare, CheckCircle, FileText, Filter, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -56,7 +56,7 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
 
   return (
     <div className="p-6 space-y-4">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <Filter className="h-4 w-4 text-gray-400" />
         <Select value={filtroStatus} onValueChange={setFiltroStatus}>
           <SelectTrigger className="w-44">
@@ -71,6 +71,10 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
           </SelectContent>
         </Select>
         <span className="text-sm text-gray-500">{filtradas.length} cobranças</span>
+        <Button variant="outline" size="sm" className="ml-auto" onClick={() => window.open('/api/exportar?tipo=cobrancas', '_blank')}>
+          <Download className="h-4 w-4" />
+          Exportar CSV
+        </Button>
       </div>
 
       {filtradas.length === 0 ? (

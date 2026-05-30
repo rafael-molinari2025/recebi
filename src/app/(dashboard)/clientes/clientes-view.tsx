@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Search, Phone, Edit, Trash2, UserCheck, UserX } from 'lucide-react'
+import { Plus, Search, Phone, Edit, Trash2, UserCheck, UserX, Eye, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -59,6 +59,10 @@ export function ClientesView({ clientes }: { clientes: Cliente[] }) {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+        <Button variant="outline" onClick={() => window.open('/api/exportar?tipo=clientes', '_blank')}>
+          <Download className="h-4 w-4" />
+          Exportar CSV
+        </Button>
         <Button onClick={() => { setEditCliente(undefined); setFormOpen(true) }}>
           <Plus className="h-4 w-4" />
           Novo cliente
@@ -101,6 +105,14 @@ export function ClientesView({ clientes }: { clientes: Cliente[] }) {
                 </div>
 
                 <div className="flex gap-2 mt-3">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => router.push(`/clientes/${c.id}`)}
+                    title="Ver perfil"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                  </Button>
                   <Button
                     size="sm"
                     variant="outline"

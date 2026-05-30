@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, Calendar, CreditCard, Settings, LogOut, Wallet } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, CreditCard, Settings, LogOut, Wallet, CalendarDays } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -11,6 +11,7 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/clientes', label: 'Clientes', icon: Users },
   { href: '/atendimentos', label: 'Atendimentos', icon: Calendar },
+  { href: '/agenda', label: 'Agenda', icon: CalendarDays },
   { href: '/cobrancas', label: 'Cobranças', icon: CreditCard },
   { href: '/configuracoes', label: 'Configurações', icon: Settings },
 ]

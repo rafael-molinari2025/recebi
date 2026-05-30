@@ -20,9 +20,11 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  clientes      Cliente[]
-  atendimentos  Atendimento[]
-  cobrancas     Cobranca[]
+  clientes          Cliente[]
+  atendimentos      Atendimento[]
+  cobrancas         Cobranca[]
+  membrosClinica    MembroClinica[] @relation("clinicaMembers")
+  membroEm          MembroClinica[] @relation("membroOf")
 
   @@map("users")
 }
@@ -60,6 +62,7 @@ model Atendimento {
 
   data        DateTime
   descricao   String?
+  notas       String?   // Anotações privadas (não aparecem no recibo)
   valor       Decimal   @db.Decimal(10, 2)
   gerarCobranca Boolean @default(true)
 
@@ -108,10 +111,24 @@ model Cobranca {
   @@map("cobrancas")
 }
 
+model MembroClinica {
+  id          String   @id @default(cuid())
+  clinicaId   String   // userId do dono da clínica
+  clinica     User     @relation("clinicaMembers", fields: [clinicaId], references: [id], onDelete: Cascade)
+  membroId    String   // userId do membro
+  membro      User     @relation("membroOf", fields: [membroId], references: [id], onDelete: Cascade)
+  email       String   // email do convite
+  status      String   @default("PENDENTE") // PENDENTE | ATIVO
+  createdAt   DateTime @default(now())
+
+  @@unique([clinicaId, email])
+  @@map("membros_clinica")
+}
+
 enum Plano {
   STARTER   // gratuito, até 5 clientes
-  PRO       // R$ 59/mês, até 50 clientes
-  CLINICA   // R$ 129/mês, até 200 clientes
+  PRO       // R$ 47/mês, até 50 clientes
+  CLINICA   // R$ 97/mês, até 200 clientes + 3 membros
 }
 
 enum TipoAtendimento {

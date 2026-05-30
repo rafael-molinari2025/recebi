@@ -9,6 +9,7 @@ const atendimentoSchema = z.object({
   clienteId: z.string().min(1),
   data: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Data inválida' }),
   descricao: z.string().max(500).optional(),
+  notas: z.string().max(2000).optional(),
   valor: z.number().positive(),
   gerarCobranca: z.boolean().default(true),
 })
@@ -49,6 +50,7 @@ export async function POST(req: NextRequest) {
         clienteId: body.clienteId,
         data: new Date(body.data),
         descricao: body.descricao,
+        notas: body.notas || null,
         valor: body.valor,
         gerarCobranca: body.gerarCobranca,
       },

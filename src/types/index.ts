@@ -38,6 +38,7 @@ export interface Atendimento {
   cliente?: Cliente
   data: string
   descricao?: string
+  notas?: string
   valor: number
   gerarCobranca: boolean
   createdAt: string

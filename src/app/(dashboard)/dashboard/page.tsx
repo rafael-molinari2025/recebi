@@ -1,21 +1,24 @@
-import { DollarSign, TrendingDown, Clock, Users } from 'lucide-react'
+import { DollarSign, TrendingDown, Clock, Users, FileDown } from 'lucide-react'
 
-export const revalidate = 60 // revalida a cada 60 segundos
+export const revalidate = 60
 import { Header } from '@/components/layout/header'
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { RevenueChart } from '@/components/dashboard/revenue-chart'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency, formatDate, diasAtraso } from '@/lib/utils'
+import { subMonths, startOfMonth, endOfMonth, format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 
 async function getDashboardData(supabaseId: string) {
   const user = await prisma.user.findUnique({ where: { supabaseId } })
   if (!user) return null
 
   const agora = new Date()
-  const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1)
-  const fimMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0)
+  const inicioMes = startOfMonth(agora)
+  const fimMes = endOfMonth(agora)
 
   const [cobrancasMes, clientesAtivos, atendimentosMes] = await Promise.all([
     prisma.cobranca.findMany({
@@ -27,39 +30,39 @@ async function getDashboardData(supabaseId: string) {
     prisma.atendimento.count({ where: { userId: user.id, data: { gte: inicioMes, lte: fimMes } } }),
   ])
 
-  const totalReceber = cobrancasMes
-    .filter((c) => c.status === 'PENDENTE')
-    .reduce((acc, c) => acc + Number(c.valor), 0)
-
-  const totalRecebido = cobrancasMes
-    .filter((c) => c.status === 'PAGO')
-    .reduce((acc, c) => acc + Number(c.valor), 0)
-
-  const totalAtrasado = cobrancasMes
-    .filter((c) => c.status === 'ATRASADO' || (c.status === 'PENDENTE' && new Date(c.vencimento) < agora))
-    .reduce((acc, c) => acc + Number(c.valor), 0)
-
+  const totalReceber = cobrancasMes.filter((c) => c.status === 'PENDENTE').reduce((acc, c) => acc + Number(c.valor), 0)
+  const totalRecebido = cobrancasMes.filter((c) => c.status === 'PAGO').reduce((acc, c) => acc + Number(c.valor), 0)
+  const totalAtrasado = cobrancasMes.filter((c) => c.status === 'ATRASADO' || (c.status === 'PENDENTE' && new Date(c.vencimento) < agora)).reduce((acc, c) => acc + Number(c.valor), 0)
   const totalGeral = totalReceber + totalRecebido
   const taxaInadimplencia = totalGeral > 0 ? Math.round((totalAtrasado / totalGeral) * 100) : 0
 
   const clientesEmAtraso = cobrancasMes
     .filter((c) => c.status === 'ATRASADO' || (c.status === 'PENDENTE' && new Date(c.vencimento) < agora))
-    .map((c) => ({
-      id: c.id,
-      nome: c.cliente.nome,
-      valor: Number(c.valor),
-      diasAtraso: diasAtraso(c.vencimento.toISOString()),
-    }))
+    .map((c) => ({ id: c.id, nome: c.cliente.nome, valor: Number(c.valor), diasAtraso: diasAtraso(c.vencimento.toISOString()) }))
     .sort((a, b) => b.diasAtraso - a.diasAtraso)
 
+  // Evolução dos últimos 6 meses
+  const meses = Array.from({ length: 6 }, (_, i) => subMonths(agora, 5 - i))
+  const cobrancas6m = await prisma.cobranca.findMany({
+    where: { userId: user.id, vencimento: { gte: startOfMonth(meses[0]), lte: fimMes } },
+    select: { valor: true, status: true, vencimento: true },
+  })
+
+  const evolucaoMensal = meses.map((m) => {
+    const inicio = startOfMonth(m)
+    const fim = endOfMonth(m)
+    const doMes = cobrancas6m.filter((c) => c.vencimento >= inicio && c.vencimento <= fim)
+    return {
+      mes: format(m, 'MMM', { locale: ptBR }),
+      recebido: doMes.filter((c) => c.status === 'PAGO').reduce((acc, c) => acc + Number(c.valor), 0),
+      pendente: doMes.filter((c) => c.status === 'PENDENTE').reduce((acc, c) => acc + Number(c.valor), 0),
+      atrasado: doMes.filter((c) => c.status === 'ATRASADO').reduce((acc, c) => acc + Number(c.valor), 0),
+    }
+  })
+
   return {
-    totalReceber,
-    totalRecebido,
-    totalAtrasado,
-    taxaInadimplencia,
-    clientesAtivos,
-    atendimentosMes,
-    clientesEmAtraso,
+    totalReceber, totalRecebido, totalAtrasado, taxaInadimplencia,
+    clientesAtivos, atendimentosMes, clientesEmAtraso, evolucaoMensal,
     cobrancasPendentes: cobrancasMes.filter((c) => c.status === 'PENDENTE' && new Date(c.vencimento) >= agora),
   }
 }
@@ -73,67 +76,43 @@ export default async function DashboardPage() {
     return (
       <div>
         <Header title="Dashboard" subtitle="Visão geral do mês" />
-        <div className="p-6">
-          <p className="text-gray-500">Configure sua conta para começar.</p>
-        </div>
+        <div className="p-6"><p className="text-gray-500">Configure sua conta para começar.</p></div>
       </div>
     )
   }
 
   return (
     <div>
-      <Header title="Dashboard" subtitle="Visão geral do mês atual" />
-
+      <Header title="Dashboard" subtitle="Visão geral do mês atual" relatorioUrl="/api/relatorio" />
       <div className="p-6 space-y-6">
-        {/* Cards de stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard
-            title="A Receber"
-            value={formatCurrency(data.totalReceber)}
-            subtitle="pendente este mês"
-            icon={Clock}
-            color="yellow"
-          />
-          <StatsCard
-            title="Recebido"
-            value={formatCurrency(data.totalRecebido)}
-            subtitle="confirmado este mês"
-            icon={DollarSign}
-            color="green"
-          />
-          <StatsCard
-            title="Em Atraso"
-            value={formatCurrency(data.totalAtrasado)}
-            subtitle={`${data.taxaInadimplencia}% de inadimplência`}
-            icon={TrendingDown}
-            color="red"
-          />
-          <StatsCard
-            title="Clientes Ativos"
-            value={String(data.clientesAtivos)}
-            subtitle={`${data.atendimentosMes} atendimentos este mês`}
-            icon={Users}
-            color="indigo"
-          />
+          <StatsCard title="A Receber" value={formatCurrency(data.totalReceber)} subtitle="pendente este mês" icon={Clock} color="yellow" />
+          <StatsCard title="Recebido" value={formatCurrency(data.totalRecebido)} subtitle="confirmado este mês" icon={DollarSign} color="green" />
+          <StatsCard title="Em Atraso" value={formatCurrency(data.totalAtrasado)} subtitle={`${data.taxaInadimplencia}% de inadimplência`} icon={TrendingDown} color="red" />
+          <StatsCard title="Clientes Ativos" value={String(data.clientesAtivos)} subtitle={`${data.atendimentosMes} atendimentos este mês`} icon={Users} color="indigo" />
         </div>
 
+        {/* Gráfico de evolução mensal */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Evolução Financeira — Últimos 6 meses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RevenueChart data={data.evolucaoMensal} />
+          </CardContent>
+        </Card>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Clientes em atraso */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 Clientes em Atraso
-                {data.clientesEmAtraso.length > 0 && (
-                  <Badge variant="destructive">{data.clientesEmAtraso.length}</Badge>
-                )}
+                {data.clientesEmAtraso.length > 0 && <Badge variant="destructive">{data.clientesEmAtraso.length}</Badge>}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {data.clientesEmAtraso.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-2xl mb-2">🎉</p>
-                  <p className="text-sm text-gray-500">Nenhum cliente em atraso!</p>
-                </div>
+                <div className="text-center py-8"><p className="text-2xl mb-2">🎉</p><p className="text-sm text-gray-500">Nenhum cliente em atraso!</p></div>
               ) : (
                 <div className="space-y-3">
                   {data.clientesEmAtraso.slice(0, 5).map((c) => (
@@ -150,16 +129,11 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Próximos vencimentos */}
           <Card>
-            <CardHeader>
-              <CardTitle>Próximos Vencimentos</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle>Próximos Vencimentos</CardTitle></CardHeader>
             <CardContent>
               {data.cobrancasPendentes.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-sm text-gray-500">Sem cobranças pendentes.</p>
-                </div>
+                <div className="text-center py-8"><p className="text-sm text-gray-500">Sem cobranças pendentes.</p></div>
               ) : (
                 <div className="space-y-3">
                   {data.cobrancasPendentes.slice(0, 5).map((c) => (
