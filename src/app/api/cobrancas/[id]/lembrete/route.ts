@@ -43,9 +43,14 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
         profissionalNome: user.nome,
       })
     }
-  } catch (err) {
-    console.error('[lembrete] Erro ao enviar WhatsApp:', err)
-    return NextResponse.json({ message: 'Falha ao enviar mensagem WhatsApp.' }, { status: 500 })
+  } catch (err: any) {
+    const zapiError = err?.response?.data
+    const zapiStatus = err?.response?.status
+    console.error('[lembrete] Erro Z-API:', zapiStatus, JSON.stringify(zapiError))
+    console.error('[lembrete] URL usada:', `https://api.z-api.io/instances/${process.env.ZAPI_INSTANCE_ID}/token/${process.env.ZAPI_TOKEN}/send-text`)
+    return NextResponse.json({
+      message: `Falha ao enviar mensagem WhatsApp. Código: ${zapiStatus ?? 'sem resposta'}. Detalhe: ${JSON.stringify(zapiError ?? err?.message)}`,
+    }, { status: 500 })
   }
 
   return NextResponse.json({ ok: true })
