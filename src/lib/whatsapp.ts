@@ -39,13 +39,10 @@ export async function enviarLembreteVencimento(params: {
   linkPagamento?: string
   profissionalNome: string
 }): Promise<void> {
-  const mensagem = `Olá, ${params.nome}! 😊
-
-Passando para lembrar que você tem um pagamento no valor de *${formatCurrency(params.valor)}* com vencimento em *${formatDate(params.vencimento)}*.
-
-${params.linkPagamento ? `Pague com facilidade pelo link:\n${params.linkPagamento}` : ''}
-
-Qualquer dúvida, é só chamar!
+  const mensagem = `Olá, ${params.nome}!
+Você possui um pagamento de *${formatCurrency(params.valor)}* com vencimento em *${formatDate(params.vencimento)}*.
+Caso o pagamento já tenha sido efetuado, por favor desconsidere esta mensagem.${params.linkPagamento ? `\nPague pelo link: ${params.linkPagamento}` : ''}
+Em caso de dúvidas, estamos à disposição.
 _${params.profissionalNome}_`
 
   await enviarMensagem(params.telefone, mensagem)
@@ -61,13 +58,9 @@ export async function enviarAvisoAtraso(params: {
   profissionalNome: string
 }): Promise<void> {
   const mensagem = `Olá, ${params.nome}!
-
-Notei que o pagamento de *${formatCurrency(params.valor)}* (vencido em ${formatDate(params.vencimento)}) ainda está em aberto.
-
-Caso já tenha pago, desconsidere esta mensagem. Se precisar combinar algo, pode me chamar.
-
-${params.linkPagamento ? `Link para pagamento:\n${params.linkPagamento}` : ''}
-
+Identificamos que o pagamento de *${formatCurrency(params.valor)}*, com vencimento em *${formatDate(params.vencimento)}*, encontra-se em aberto há ${params.diasAtraso} ${params.diasAtraso === 1 ? 'dia' : 'dias'}.
+Caso o pagamento já tenha sido efetuado, por favor desconsidere esta mensagem.${params.linkPagamento ? `\nRegularize pelo link: ${params.linkPagamento}` : ''}
+Em caso de dúvidas, estamos à disposição.
 _${params.profissionalNome}_`
 
   await enviarMensagem(params.telefone, mensagem)
@@ -80,12 +73,8 @@ export async function enviarConfirmacaoPagamento(params: {
   reciboUrl?: string
   profissionalNome: string
 }): Promise<void> {
-  const mensagem = `Olá, ${params.nome}! ✅
-
-Pagamento de *${formatCurrency(params.valor)}* confirmado. Obrigado!
-
-${params.reciboUrl ? `Seu recibo está disponível em:\n${params.reciboUrl}` : ''}
-
+  const mensagem = `Olá, ${params.nome}!
+Seu pagamento de *${formatCurrency(params.valor)}* foi confirmado. Obrigado!${params.reciboUrl ? `\nSeu recibo está disponível em: ${params.reciboUrl}` : ''}
 _${params.profissionalNome}_`
 
   await enviarMensagem(params.telefone, mensagem)
