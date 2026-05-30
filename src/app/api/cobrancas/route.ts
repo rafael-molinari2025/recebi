@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { criarCliente, criarCobranca } from '@/lib/asaas'
-
-async function getAuthUser() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-  return prisma.user.findUnique({ where: { supabaseId: user.id } })
-}
+import { getAuthUser } from '@/lib/auth'
 
 export async function GET() {
   const user = await getAuthUser()
