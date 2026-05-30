@@ -32,6 +32,10 @@ export function gerarHtmlRecibo(data: ReciboData): string {
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-size: 11px; color: #999; }
   .badge { display: inline-block; background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 16px; }
+  .print-btn { display: flex; justify-content: center; margin-bottom: 24px; }
+  .print-btn button { background: #6366f1; color: #fff; border: none; padding: 10px 28px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
+  .print-btn button:hover { background: #4f46e5; }
+  @media print { .print-btn { display: none; } }
 </style>
 </head>
 <body>
@@ -40,6 +44,10 @@ export function gerarHtmlRecibo(data: ReciboData): string {
     <div class="logo">re<span>cebi</span></div>
     <div class="titulo">Recibo de Pagamento</div>
     <div class="numero">Nº ${data.numero}</div>
+  </div>
+
+  <div class="print-btn">
+    <button onclick="window.print()">⬇ Salvar / Imprimir PDF</button>
   </div>
 
   <div style="text-align:center;">
