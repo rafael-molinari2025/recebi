@@ -59,7 +59,18 @@ export function ConfiguracoesView({ user }: { user: User | null }) {
               <p className="text-sm text-gray-500 mt-1">Limite: {plano.limite}</p>
             </div>
             {user?.plano === 'STARTER' && (
-              <Button variant="default">Fazer upgrade</Button>
+              <div className="flex gap-2">
+                <Button variant="outline" asChild>
+                  <a href="https://buy.stripe.com/00w6oIa6Nd9X7L47mx9oc01" target="_blank" rel="noopener noreferrer">
+                    Pro — R$ 59/mês
+                  </a>
+                </Button>
+                <Button variant="default" asChild>
+                  <a href="https://buy.stripe.com/cNi8wQ6UBgm95CWfT39oc00" target="_blank" rel="noopener noreferrer">
+                    Clínica — R$ 129/mês
+                  </a>
+                </Button>
+              </div>
             )}
           </div>
         </CardContent>
