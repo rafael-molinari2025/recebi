@@ -31,7 +31,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
         vencimento: cobranca.vencimento.toISOString(),
         diasAtraso: atraso,
         linkPagamento: cobranca.linkPagamento ?? undefined,
-        profissionalNome: user.nome,
+        profissionalNome: user.empresa ?? user.nome,
       })
     } else {
       await enviarLembreteVencimento({
@@ -40,7 +40,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
         valor: Number(cobranca.valor),
         vencimento: cobranca.vencimento.toISOString(),
         linkPagamento: cobranca.linkPagamento ?? undefined,
-        profissionalNome: user.nome,
+        profissionalNome: user.empresa ?? user.nome,
       })
     }
   } catch (err: any) {

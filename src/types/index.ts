@@ -9,6 +9,7 @@ export interface User {
   email: string
   telefone?: string
   profissao?: string
+  empresa?: string
   plano: Plano
   createdAt: string
 }

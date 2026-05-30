@@ -30,6 +30,7 @@ export async function PUT(req: NextRequest) {
         nome: body.nome ?? auth.supabaseUser.user_metadata?.nome ?? 'Usuário',
         profissao: body.profissao,
         telefone: body.telefone,
+        empresa: body.empresa,
       },
     })
     return NextResponse.json(novoUser)
@@ -41,6 +42,7 @@ export async function PUT(req: NextRequest) {
       nome: body.nome ?? undefined,
       profissao: body.profissao ?? undefined,
       telefone: body.telefone ?? undefined,
+      empresa: body.empresa ?? undefined,
     },
   })
 

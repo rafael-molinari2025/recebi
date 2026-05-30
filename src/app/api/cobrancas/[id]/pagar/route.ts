@@ -34,7 +34,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       telefone: cobranca.cliente.telefone,
       valor: Number(cobranca.valor),
       reciboUrl,
-      profissionalNome: user.nome,
+      profissionalNome: user.empresa ?? user.nome,
     })
   } catch {
     // WhatsApp não configurado

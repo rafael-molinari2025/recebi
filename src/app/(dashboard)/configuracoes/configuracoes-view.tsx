@@ -22,6 +22,7 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
     nome: user?.nome ?? '',
     telefone: user?.telefone ?? '',
     profissao: user?.profissao ?? '',
+    empresa: user?.empresa ?? '',
   })
 
   const planoInfo = {
@@ -103,6 +104,14 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
                 placeholder="Psicóloga, Personal Trainer..."
                 value={form.profissao}
                 onChange={(e) => setForm({ ...form, profissao: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Nome da empresa</Label>
+              <Input
+                placeholder="Ex.: Clínica Bem Estar"
+                value={form.empresa}
+                onChange={(e) => setForm({ ...form, empresa: e.target.value })}
               />
             </div>
             <div className="space-y-1.5">
