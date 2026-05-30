@@ -10,7 +10,12 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from '@/hooks/use-toast'
 import type { User } from '@/types'
 
-export function ConfiguracoesView({ user }: { user: User | null }) {
+interface Integracoes {
+  asaas: boolean
+  whatsapp: boolean
+}
+
+export function ConfiguracoesView({ user, integracoes }: { user: User | null; integracoes: Integracoes }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
@@ -127,8 +132,8 @@ export function ConfiguracoesView({ user }: { user: User | null }) {
               <p className="text-sm font-medium text-gray-900">Asaas (Pagamentos)</p>
               <p className="text-xs text-gray-500">PIX, boleto e cartão de crédito</p>
             </div>
-            <Badge variant={process.env.NEXT_PUBLIC_ASAAS_CONFIGURED ? 'success' : 'secondary'}>
-              {process.env.NEXT_PUBLIC_ASAAS_CONFIGURED ? 'Configurado' : 'Pendente'}
+            <Badge variant={integracoes.asaas ? 'success' : 'secondary'}>
+              {integracoes.asaas ? 'Configurado' : 'Pendente'}
             </Badge>
           </div>
           <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
@@ -136,8 +141,8 @@ export function ConfiguracoesView({ user }: { user: User | null }) {
               <p className="text-sm font-medium text-gray-900">WhatsApp (Evolution API)</p>
               <p className="text-xs text-gray-500">Lembretes automáticos</p>
             </div>
-            <Badge variant={process.env.NEXT_PUBLIC_WA_CONFIGURED ? 'success' : 'secondary'}>
-              {process.env.NEXT_PUBLIC_WA_CONFIGURED ? 'Configurado' : 'Pendente'}
+            <Badge variant={integracoes.whatsapp ? 'success' : 'secondary'}>
+              {integracoes.whatsapp ? 'Configurado' : 'Pendente'}
             </Badge>
           </div>
         </CardContent>

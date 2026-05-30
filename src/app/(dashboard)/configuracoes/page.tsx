@@ -18,10 +18,15 @@ export default async function ConfiguracoesPage() {
     updatedAt: user.updatedAt.toISOString(),
   } : null
 
+  const integracoes = {
+    asaas: !!process.env.ASAAS_API_KEY,
+    whatsapp: !!process.env.WHATSAPP_API_URL,
+  }
+
   return (
     <div>
       <Header title="Configurações" subtitle="Gerencie sua conta e preferências" />
-      <ConfiguracoesView user={userData as any} />
+      <ConfiguracoesView user={userData as any} integracoes={integracoes} />
     </div>
   )
 }
