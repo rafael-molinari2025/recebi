@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { getAuthUser } from '@/lib/auth'
+
+const LIMITES = { STARTER: 5, PRO: 50, CLINICA: 200 }
+
+const clienteSchema = z.object({
+  nome: z.string().min(2).max(100),
+  telefone: z.string().min(8).max(20),
+  email: z.string().email().optional().or(z.literal('')),
+  tipoAtendimento: z.enum(['SESSAO_AVULSA', 'PACOTE_MENSAL', 'PLANO_FIXO']),
+  valorHonorario: z.number().positive(),
+  diaVencimento: z.number().int().min(1).max(28).default(5),
+  observacoes: z.string().max(500).optional(),
+})
 
 export async function GET() {
   const user = await getAuthUser()
@@ -19,18 +32,21 @@ export async function POST(req: NextRequest) {
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  // Verificar limite do plano
-  if (user.plano === 'STARTER') {
-    const count = await prisma.cliente.count({ where: { userId: user.id, ativo: true } })
-    if (count >= 5) {
-      return NextResponse.json(
-        { message: 'Limite de 5 clientes atingido no plano gratuito. Faça upgrade para continuar.' },
-        { status: 403 }
-      )
-    }
+  const parsed = clienteSchema.safeParse(await req.json())
+  if (!parsed.success) {
+    return NextResponse.json({ message: 'Dados inválidos.', errors: parsed.error.flatten() }, { status: 400 })
   }
+  const body = parsed.data
 
-  const body = await req.json()
+  // Verificar limite do plano
+  const limite = LIMITES[user.plano] ?? 5
+  const count = await prisma.cliente.count({ where: { userId: user.id, ativo: true } })
+  if (count >= limite) {
+    return NextResponse.json(
+      { message: `Limite de ${limite} clientes atingido no seu plano. Faça upgrade para continuar.` },
+      { status: 403 }
+    )
+  }
 
   try {
     const cliente = await prisma.cliente.create({
@@ -41,11 +57,10 @@ export async function POST(req: NextRequest) {
         email: body.email || null,
         tipoAtendimento: body.tipoAtendimento,
         valorHonorario: body.valorHonorario,
-        diaVencimento: body.diaVencimento ?? 5,
+        diaVencimento: body.diaVencimento,
         observacoes: body.observacoes || null,
       },
     })
-
     return NextResponse.json({ ...cliente, valorHonorario: Number(cliente.valorHonorario) }, { status: 201 })
   } catch (err) {
     console.error('[POST /api/clientes]', err)

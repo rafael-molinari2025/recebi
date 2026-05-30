@@ -1,5 +1,10 @@
 import { formatCurrency, formatDate, formatDateTime } from './utils'
 
+function esc(str: string | undefined | null): string {
+  if (!str) return ''
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
 interface ReciboData {
   numero: string
   profissionalNome: string
@@ -43,7 +48,7 @@ export function gerarHtmlRecibo(data: ReciboData): string {
   <div class="header">
     <div class="logo">re<span>cebi</span></div>
     <div class="titulo">Recibo de Pagamento</div>
-    <div class="numero">Nº ${data.numero}</div>
+    <div class="numero">Nº ${esc(data.numero)}</div>
   </div>
 
   <div class="print-btn">
@@ -59,17 +64,17 @@ export function gerarHtmlRecibo(data: ReciboData): string {
   <div class="grid">
     <div class="section">
       <div class="label">Profissional</div>
-      <div class="value">${data.profissionalNome}</div>
-      ${data.profissionalProfissao ? `<div style="font-size:13px;color:#666">${data.profissionalProfissao}</div>` : ''}
+      <div class="value">${esc(data.profissionalNome)}</div>
+      ${data.profissionalProfissao ? `<div style="font-size:13px;color:#666">${esc(data.profissionalProfissao)}</div>` : ''}
     </div>
     <div class="section">
       <div class="label">Cliente</div>
-      <div class="value">${data.clienteNome}</div>
+      <div class="value">${esc(data.clienteNome)}</div>
     </div>
     ${data.descricao ? `
     <div class="section" style="grid-column:1/-1">
       <div class="label">Descrição</div>
-      <div class="value">${data.descricao}</div>
+      <div class="value">${esc(data.descricao)}</div>
     </div>` : ''}
     ${data.dataAtendimento ? `
     <div class="section">

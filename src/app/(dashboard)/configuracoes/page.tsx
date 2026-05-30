@@ -9,8 +9,8 @@ async function getUser(supabaseId: string) {
 
 export default async function ConfiguracoesPage() {
   const supabase = await createSupabaseClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const user = session?.user ? await getUser(session.user.id) : null
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const user = authUser ? await getUser(authUser.id) : null
 
   const userData = user ? {
     ...user,

@@ -12,7 +12,8 @@ async function getAuthUser() {
 export async function GET() {
   const auth = await getAuthUser()
   if (!auth?.dbUser) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
-  return NextResponse.json(auth.dbUser)
+  const { id, nome, email, telefone, profissao, empresa, plano, createdAt } = auth.dbUser
+  return NextResponse.json({ id, nome, email, telefone, profissao, empresa, plano, createdAt })
 }
 
 export async function PUT(req: NextRequest) {

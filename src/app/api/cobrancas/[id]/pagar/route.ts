@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { enviarConfirmacaoPagamento } from '@/lib/whatsapp'
 import { getAuthUser } from '@/lib/auth'
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
@@ -15,9 +15,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   })
   if (!cobranca) return NextResponse.json({ error: 'Não encontrado' }, { status: 404 })
 
-  const proto = req.headers.get('x-forwarded-proto') ?? 'https'
-  const host = req.headers.get('host') ?? 'recebi-khaki.vercel.app'
-  const reciboUrl = `${proto}://${host}/api/recibo/${id}`
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://recebi-khaki.vercel.app'
+  const reciboUrl = `${appUrl}/api/recibo/${id}`
 
   await prisma.cobranca.update({
     where: { id },

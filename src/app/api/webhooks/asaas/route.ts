@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { enviarConfirmacaoPagamento } from '@/lib/whatsapp'
 
-// Webhook do Asaas para atualização automática de status
 export async function POST(req: NextRequest) {
-  const body = await req.json()
+  // Verificar token do webhook Asaas (configurar ASAAS_WEBHOOK_TOKEN no Vercel e no painel Asaas)
+  const token = req.headers.get('asaas-access-token')
+  if (process.env.ASAAS_WEBHOOK_TOKEN && token !== process.env.ASAAS_WEBHOOK_TOKEN) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
 
+  const body = await req.json()
   const { event, payment } = body
 
   if (!payment?.externalReference) {
@@ -19,16 +23,12 @@ export async function POST(req: NextRequest) {
     })
 
     if (cobranca && cobranca.status !== 'PAGO') {
-      const reciboUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/recibo/${cobranca.id}`
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://recebi-khaki.vercel.app'
+      const reciboUrl = `${appUrl}/api/recibo/${cobranca.id}`
 
       await prisma.cobranca.update({
         where: { id: cobranca.id },
-        data: {
-          status: 'PAGO',
-          pagamentoEm: new Date(),
-          reciboGerado: true,
-          reciboUrl,
-        },
+        data: { status: 'PAGO', pagamentoEm: new Date(), reciboGerado: true, reciboUrl },
       })
 
       try {
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
           telefone: cobranca.cliente.telefone,
           valor: Number(cobranca.valor),
           reciboUrl,
-          profissionalNome: cobranca.user.nome,
+          profissionalNome: cobranca.user.empresa ?? cobranca.user.nome,
         })
       } catch {
         // WhatsApp não configurado
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
   if (event === 'PAYMENT_OVERDUE') {
     await prisma.cobranca.updateMany({
-      where: { asaasId: payment.id },
+      where: { asaasId: payment.id, status: { not: 'PAGO' } },
       data: { status: 'ATRASADO' },
     })
   }

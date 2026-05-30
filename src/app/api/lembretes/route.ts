@@ -6,9 +6,13 @@ import { addDays } from 'date-fns'
 
 // Rota para ser chamada por um cron job (ex: Vercel Cron, Railway Cron)
 export async function POST(req: NextRequest) {
-  // Validar secret do cron
+  // Validar secret do cron — bloqueia se CRON_SECRET não estiver configurado
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret) {
+    return NextResponse.json({ error: 'CRON_SECRET não configurado' }, { status: 500 })
+  }
   const auth = req.headers.get('authorization')
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (auth !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
   }
 
@@ -51,6 +55,8 @@ export async function POST(req: NextRequest) {
       vencimento: { lt: agora },
     },
     include: { cliente: true, user: true },
+    take: 200,
+    orderBy: { vencimento: 'asc' },
   })
 
   // Atualizar status para ATRASADO

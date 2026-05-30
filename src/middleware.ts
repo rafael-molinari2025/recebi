@@ -33,20 +33,20 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Usa getSession (mais rápido) para verificar se está logado
-  const { data: { session } } = await supabase.auth.getSession()
+  // Usa getUser (valida JWT no servidor Supabase — seguro para decisões de auth)
+  const { data: { user } } = await supabase.auth.getUser()
 
   const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/cadastro')
   const isApiRoute = pathname.startsWith('/api')
   const isPublicPage = pathname === '/' || pathname.startsWith('/sobre') || pathname.startsWith('/precos')
 
-  if (!session && !isAuthPage && !isApiRoute && !isPublicPage) {
+  if (!user && !isAuthPage && !isApiRoute && !isPublicPage) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  if (session && isAuthPage) {
+  if (user && isAuthPage) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
