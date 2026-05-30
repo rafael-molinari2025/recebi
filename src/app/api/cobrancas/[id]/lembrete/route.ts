@@ -16,27 +16,36 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   })
   if (!cobranca) return NextResponse.json({ error: 'Não encontrado' }, { status: 404 })
 
+  if (!process.env.WHATSAPP_API_URL) {
+    return NextResponse.json({ ok: false, message: 'WhatsApp não configurado.' }, { status: 200 })
+  }
+
   const atraso = diasAtraso(cobranca.vencimento.toISOString())
 
-  if (atraso > 0) {
-    await enviarAvisoAtraso({
-      nome: cobranca.cliente.nome,
-      telefone: cobranca.cliente.telefone,
-      valor: Number(cobranca.valor),
-      vencimento: cobranca.vencimento.toISOString(),
-      diasAtraso: atraso,
-      linkPagamento: cobranca.linkPagamento ?? undefined,
-      profissionalNome: user.nome,
-    })
-  } else {
-    await enviarLembreteVencimento({
-      nome: cobranca.cliente.nome,
-      telefone: cobranca.cliente.telefone,
-      valor: Number(cobranca.valor),
-      vencimento: cobranca.vencimento.toISOString(),
-      linkPagamento: cobranca.linkPagamento ?? undefined,
-      profissionalNome: user.nome,
-    })
+  try {
+    if (atraso > 0) {
+      await enviarAvisoAtraso({
+        nome: cobranca.cliente.nome,
+        telefone: cobranca.cliente.telefone,
+        valor: Number(cobranca.valor),
+        vencimento: cobranca.vencimento.toISOString(),
+        diasAtraso: atraso,
+        linkPagamento: cobranca.linkPagamento ?? undefined,
+        profissionalNome: user.nome,
+      })
+    } else {
+      await enviarLembreteVencimento({
+        nome: cobranca.cliente.nome,
+        telefone: cobranca.cliente.telefone,
+        valor: Number(cobranca.valor),
+        vencimento: cobranca.vencimento.toISOString(),
+        linkPagamento: cobranca.linkPagamento ?? undefined,
+        profissionalNome: user.nome,
+      })
+    }
+  } catch (err) {
+    console.error('[lembrete] Erro ao enviar WhatsApp:', err)
+    return NextResponse.json({ message: 'Falha ao enviar mensagem WhatsApp.' }, { status: 500 })
   }
 
   return NextResponse.json({ ok: true })

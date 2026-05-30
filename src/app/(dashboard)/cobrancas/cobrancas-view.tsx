@@ -39,10 +39,13 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
   async function handleEnviarLembrete(id: string) {
     setLoadingId(id)
     const res = await fetch(`/api/cobrancas/${id}/lembrete`, { method: 'POST' })
-    if (res.ok) {
+    const data = await res.json().catch(() => ({}))
+    if (res.ok && data.ok) {
       toast({ title: 'Lembrete enviado!', description: 'Mensagem enviada via WhatsApp.', variant: 'success' })
+    } else if (res.ok && !data.ok) {
+      toast({ title: 'WhatsApp não configurado', description: 'Configure a integração em Configurações para enviar lembretes.', variant: 'destructive' })
     } else {
-      toast({ title: 'Erro ao enviar lembrete', variant: 'destructive' })
+      toast({ title: 'Erro ao enviar lembrete', description: data.message, variant: 'destructive' })
     }
     setLoadingId(null)
   }
