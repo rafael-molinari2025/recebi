@@ -21,8 +21,8 @@ export function ConfiguracoesView({ user }: { user: User | null }) {
 
   const planoInfo = {
     STARTER: { label: 'Gratuito', limite: '5 clientes', cor: 'secondary' as const },
-    PRO: { label: 'Pro — R$ 59/mês', limite: '50 clientes', cor: 'default' as const },
-    CLINICA: { label: 'Clínica — R$ 129/mês', limite: '200 clientes', cor: 'default' as const },
+    PRO: { label: 'Pro — R$ 47/mês', limite: '50 clientes', cor: 'default' as const },
+    CLINICA: { label: 'Clínica — R$ 97/mês', limite: '200 clientes', cor: 'default' as const },
   }
 
   const plano = user?.plano ? planoInfo[user.plano] : planoInfo.STARTER
@@ -62,12 +62,12 @@ export function ConfiguracoesView({ user }: { user: User | null }) {
               <div className="flex gap-2">
                 <Button variant="outline" asChild>
                   <a href="https://buy.stripe.com/00w6oIa6Nd9X7L47mx9oc01" target="_blank" rel="noopener noreferrer">
-                    Pro — R$ 59/mês
+                    Pro — R$ 47/mês
                   </a>
                 </Button>
                 <Button variant="default" asChild>
                   <a href="https://buy.stripe.com/cNi8wQ6UBgm95CWfT39oc00" target="_blank" rel="noopener noreferrer">
-                    Clínica — R$ 129/mês
+                    Clínica — R$ 97/mês
                   </a>
                 </Button>
               </div>
