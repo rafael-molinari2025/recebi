@@ -20,7 +20,7 @@ export default async function ConfiguracoesPage() {
 
   const integracoes = {
     asaas: !!process.env.ASAAS_API_KEY,
-    whatsapp: !!process.env.WHATSAPP_API_URL,
+    whatsapp: !!(process.env.ZAPI_INSTANCE_ID && process.env.ZAPI_TOKEN),
   }
 
   return (
