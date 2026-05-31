@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageSquare, CheckCircle, FileText, Filter, Download, Search } from 'lucide-react'
+import { MessageSquare, CheckCircle, FileText, Filter, Download, Search, Edit, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatCurrency, formatDate, getStatusLabel, getStatusColor, diasAtraso } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
@@ -21,13 +23,44 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
   const [filtroStatus, setFiltroStatus] = useState<string>('TODOS')
   const [busca, setBusca] = useState('')
   const [loadingId, setLoadingId] = useState<string | null>(null)
+  const [editando, setEditando] = useState<CobrancaComCliente | null>(null)
+  const [editForm, setEditForm] = useState({ valor: 0, vencimento: '', descricao: '' })
+  const [editLoading, setEditLoading] = useState(false)
 
   const filtradas = cobrancas
     .filter((c) => filtroStatus === 'TODOS' || c.status === filtroStatus)
     .filter((c) => !busca || c.cliente.nome.toLowerCase().includes(busca.toLowerCase()))
 
+  function abrirEditar(c: CobrancaComCliente) {
+    setEditando(c)
+    setEditForm({
+      valor: c.valor,
+      vencimento: c.vencimento.slice(0, 10),
+      descricao: c.descricao ?? '',
+    })
+  }
+
+  async function handleSalvarEdicao(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editando) return
+    setEditLoading(true)
+    const res = await fetch(`/api/cobrancas/${editando.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...editForm, valor: Number(editForm.valor) }),
+    })
+    if (res.ok) {
+      toast({ title: 'Cobrança atualizada!', variant: 'success' })
+      setEditando(null)
+      router.refresh()
+    } else {
+      const err = await res.json().catch(() => ({}))
+      toast({ title: 'Erro', description: err.message, variant: 'destructive' })
+    }
+    setEditLoading(false)
+  }
+
   async function handleMarcarPago(id: string, nomeCliente: string, valor: number) {
-    // UX-02: confirmação antes de marcar como pago
     if (!confirm(`Confirmar pagamento de ${formatCurrency(valor)} de ${nomeCliente}?`)) return
     setLoadingId(id)
     const res = await fetch(`/api/cobrancas/${id}/pagar`, { method: 'POST' })
@@ -37,6 +70,20 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
     } else {
       const err = await res.json().catch(() => ({}))
       toast({ title: 'Erro ao confirmar pagamento', description: err.error, variant: 'destructive' })
+    }
+    setLoadingId(null)
+  }
+
+  async function handleEstornar(id: string, nomeCliente: string) {
+    if (!confirm(`Estornar pagamento de ${nomeCliente}? A cobrança voltará para status anterior.`)) return
+    setLoadingId(id)
+    const res = await fetch(`/api/cobrancas/${id}/estornar`, { method: 'POST' })
+    if (res.ok) {
+      toast({ title: 'Pagamento estornado', variant: 'success' })
+      router.refresh()
+    } else {
+      const err = await res.json().catch(() => ({}))
+      toast({ title: 'Erro ao estornar', description: err.message, variant: 'destructive' })
     }
     setLoadingId(null)
   }
@@ -55,32 +102,22 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
     setLoadingId(null)
   }
 
-  async function handleGerarRecibo(id: string) {
-    window.open(`/api/recibo/${id}`, '_blank')
-  }
-
   return (
     <div className="p-6 space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            className="pl-8 w-44"
-            placeholder="Buscar cliente..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-          />
+          <Input className="pl-8 w-44" placeholder="Buscar cliente..." value={busca} onChange={(e) => setBusca(e.target.value)} />
         </div>
         <Filter className="h-4 w-4 text-gray-400" />
         <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-          <SelectTrigger className="w-44">
-            <SelectValue />
-          </SelectTrigger>
+          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="TODOS">Todos</SelectItem>
             <SelectItem value="PENDENTE">Pendente</SelectItem>
             <SelectItem value="ATRASADO">Atrasado</SelectItem>
             <SelectItem value="PAGO">Pago</SelectItem>
+            <SelectItem value="ESTORNADO">Estornado</SelectItem>
             <SelectItem value="CANCELADO">Cancelado</SelectItem>
           </SelectContent>
         </Select>
@@ -120,52 +157,44 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
                         {c.descricao && ` • ${c.descricao}`}
                       </p>
                       {c.linkPagamento && (
-                        <a
-                          href={c.linkPagamento}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-indigo-600 hover:underline mt-0.5 inline-block"
-                        >
+                        <a href={c.linkPagamento} target="_blank" rel="noopener noreferrer"
+                          className="text-xs text-indigo-600 hover:underline mt-0.5 inline-block">
                           Ver link de pagamento →
                         </a>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-3 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
                       <span className="text-lg font-bold text-gray-900">{formatCurrency(c.valor)}</span>
-
                       <div className="flex gap-1">
-                        {c.status !== 'PAGO' && c.status !== 'CANCELADO' && (
+                        {c.status !== 'PAGO' && c.status !== 'CANCELADO' && c.status !== 'ESTORNADO' && (
                           <>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleEnviarLembrete(c.id)}
-                              disabled={loadingId === c.id}
-                              title="Enviar lembrete WhatsApp"
-                            >
+                            <Button size="sm" variant="ghost" onClick={() => abrirEditar(c)} title="Editar cobrança">
+                              <Edit className="h-4 w-4 text-gray-400" />
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => handleEnviarLembrete(c.id)}
+                              disabled={loadingId === c.id} title="Enviar lembrete WhatsApp">
                               <MessageSquare className="h-4 w-4 text-green-600" />
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="success"
+                            <Button size="sm" variant="success"
                               onClick={() => handleMarcarPago(c.id, c.cliente.nome, c.valor)}
-                              disabled={loadingId === c.id}
-                            >
+                              disabled={loadingId === c.id}>
                               <CheckCircle className="h-4 w-4" />
                               Pago
                             </Button>
                           </>
                         )}
                         {c.status === 'PAGO' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleGerarRecibo(c.id)}
-                          >
-                            <FileText className="h-4 w-4" />
-                            Recibo
-                          </Button>
+                          <>
+                            <Button size="sm" variant="outline" onClick={() => window.open(`/api/recibo/${c.id}`, '_blank')}>
+                              <FileText className="h-4 w-4" />
+                              Recibo
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => handleEstornar(c.id, c.cliente.nome)}
+                              disabled={loadingId === c.id} title="Estornar pagamento">
+                              <RotateCcw className="h-4 w-4 text-orange-500" />
+                            </Button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -176,6 +205,38 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
           })}
         </div>
       )}
+
+      {/* Modal de edição de cobrança */}
+      <Dialog open={!!editando} onOpenChange={() => setEditando(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Editar Cobrança — {editando?.cliente.nome}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSalvarEdicao} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>Valor (R$)</Label>
+              <Input type="number" min="0.01" step="0.01"
+                value={editForm.valor || ''} onChange={(e) => setEditForm({ ...editForm, valor: parseFloat(e.target.value) || 0 })} required />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Vencimento</Label>
+              <Input type="date" value={editForm.vencimento}
+                onChange={(e) => setEditForm({ ...editForm, vencimento: e.target.value })} required />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Descrição</Label>
+              <Input value={editForm.descricao}
+                onChange={(e) => setEditForm({ ...editForm, descricao: e.target.value })} />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setEditando(null)}>Cancelar</Button>
+              <Button type="submit" disabled={editLoading}>
+                {editLoading ? 'Salvando...' : 'Salvar'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
