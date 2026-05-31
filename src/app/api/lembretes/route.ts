@@ -17,15 +17,16 @@ export async function POST(req: NextRequest) {
   }
 
   const agora = new Date()
+  // BUG-04: lembrete apenas para D+1 a D+3, excluindo quem vence hoje
+  const amanha = addDays(agora, 1)
   const em3dias = addDays(agora, 3)
 
-  // Buscar cobranças pendentes para os próximos 3 dias (lembrete preventivo)
   const pendentes3d = await prisma.cobranca.findMany({
     where: {
       status: 'PENDENTE',
       lembreteEnviado3d: false,
       vencimento: {
-        gte: agora,
+        gte: amanha,
         lte: em3dias,
       },
     },
@@ -72,7 +73,8 @@ export async function POST(req: NextRequest) {
     const atraso = diasAtraso(c.vencimento.toISOString())
 
     try {
-      if (atraso === 1 && !c.lembreteAtraso1d) {
+      // BUG-05: usar intervalos em vez de igualdade exata para tolerar falha de cron
+      if (atraso >= 1 && atraso <= 3 && !c.lembreteAtraso1d) {
         await enviarAvisoAtraso({
           nome: c.cliente.nome,
           telefone: c.cliente.telefone,
@@ -83,7 +85,7 @@ export async function POST(req: NextRequest) {
           profissionalNome: c.user.nome,
         })
         await prisma.cobranca.update({ where: { id: c.id }, data: { lembreteAtraso1d: true } })
-      } else if (atraso === 7 && !c.lembreteAtraso7d) {
+      } else if (atraso >= 7 && atraso <= 9 && !c.lembreteAtraso7d) {
         await enviarAvisoAtraso({
           nome: c.cliente.nome,
           telefone: c.cliente.telefone,

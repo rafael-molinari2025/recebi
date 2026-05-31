@@ -15,6 +15,11 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   })
   if (!cobranca) return NextResponse.json({ error: 'Não encontrado' }, { status: 404 })
 
+  // BUG-07: evitar duplo processamento
+  if (cobranca.status === 'PAGO') {
+    return NextResponse.json({ error: 'Cobrança já confirmada como paga.' }, { status: 409 })
+  }
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://recebi-khaki.vercel.app'
   const reciboUrl = `${appUrl}/api/recibo/${id}`
 

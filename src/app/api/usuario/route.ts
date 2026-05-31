@@ -40,10 +40,10 @@ export async function PUT(req: NextRequest) {
   const atualizado = await prisma.user.update({
     where: { supabaseId: auth.supabaseUser.id },
     data: {
-      nome: body.nome ?? undefined,
-      profissao: body.profissao ?? undefined,
-      telefone: body.telefone ?? undefined,
-      empresa: body.empresa ?? undefined,
+      nome: body.nome || undefined,
+      profissao: body.profissao !== undefined ? (body.profissao || null) : undefined,
+      telefone: body.telefone !== undefined ? (body.telefone || null) : undefined,
+      empresa: body.empresa !== undefined ? (body.empresa || null) : undefined,
     },
   })
 

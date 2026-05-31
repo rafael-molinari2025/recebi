@@ -20,7 +20,8 @@ export function ClientesView({ clientes }: { clientes: Cliente[] }) {
 
   const filtrados = clientes.filter((c) =>
     c.nome.toLowerCase().includes(search.toLowerCase()) ||
-    c.telefone.includes(search)
+    c.telefone.includes(search) ||
+    (c.email ?? '').toLowerCase().includes(search.toLowerCase())
   )
 
   async function handleDelete(id: string, nome: string) {

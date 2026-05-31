@@ -42,6 +42,7 @@ model Cliente {
   diaVencimento   Int             // 1–28
   ativo           Boolean         @default(true)
   asaasId         String?         // ID do cliente no Asaas
+  portalToken     String?         @unique // Token seguro para portal público
   observacoes     String?
 
   createdAt       DateTime        @default(now())

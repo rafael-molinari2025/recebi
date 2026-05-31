@@ -17,8 +17,14 @@ export async function POST(req: NextRequest) {
   }
 
   if (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') {
+    // BUG-06: cobranças manuais não têm atendimentoId — buscar por asaasId também
     const cobranca = await prisma.cobranca.findFirst({
-      where: { atendimentoId: payment.externalReference },
+      where: {
+        OR: [
+          { atendimentoId: payment.externalReference },
+          { asaasId: payment.id },
+        ],
+      },
       include: { cliente: true, user: true },
     })
 

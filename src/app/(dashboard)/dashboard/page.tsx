@@ -20,26 +20,44 @@ async function getDashboardData(supabaseId: string) {
   const inicioMes = startOfMonth(agora)
   const fimMes = endOfMonth(agora)
 
-  const [cobrancasMes, clientesAtivos, atendimentosMes] = await Promise.all([
+  const [cobrancasMes, cobrancasAtrasadas, clientesAtivos, atendimentosMes] = await Promise.all([
     prisma.cobranca.findMany({
       where: { userId: user.id, vencimento: { gte: inicioMes, lte: fimMes } },
       include: { cliente: { select: { nome: true, telefone: true } } },
       orderBy: { vencimento: 'asc' },
     }),
+    // BUG-02: buscar atrasos de TODOS os meses (não só o atual)
+    prisma.cobranca.findMany({
+      where: {
+        userId: user.id,
+        status: { in: ['ATRASADO', 'PENDENTE'] },
+        vencimento: { lt: inicioMes }, // meses anteriores ainda em aberto
+      },
+      include: { cliente: { select: { nome: true } } },
+    }),
     prisma.cliente.count({ where: { userId: user.id, ativo: true } }),
     prisma.atendimento.count({ where: { userId: user.id, data: { gte: inicioMes, lte: fimMes } } }),
   ])
 
-  const totalReceber = cobrancasMes.filter((c) => c.status === 'PENDENTE').reduce((acc, c) => acc + Number(c.valor), 0)
+  // BUG-01: categorias mutuamente exclusivas para cálculo correto
+  const pendentesNaoVencidos = cobrancasMes.filter((c) => c.status === 'PENDENTE' && new Date(c.vencimento) >= agora)
+  const atrasadosMes = cobrancasMes.filter((c) => c.status === 'ATRASADO' || (c.status === 'PENDENTE' && new Date(c.vencimento) < agora))
+
+  const totalReceber = pendentesNaoVencidos.reduce((acc, c) => acc + Number(c.valor), 0)
   const totalRecebido = cobrancasMes.filter((c) => c.status === 'PAGO').reduce((acc, c) => acc + Number(c.valor), 0)
-  const totalAtrasado = cobrancasMes.filter((c) => c.status === 'ATRASADO' || (c.status === 'PENDENTE' && new Date(c.vencimento) < agora)).reduce((acc, c) => acc + Number(c.valor), 0)
-  const totalGeral = totalReceber + totalRecebido
+  const totalAtrasadoMes = atrasadosMes.reduce((acc, c) => acc + Number(c.valor), 0)
+  const totalAtrasadoHistorico = cobrancasAtrasadas.reduce((acc, c) => acc + Number(c.valor), 0)
+  const totalAtrasado = totalAtrasadoMes + totalAtrasadoHistorico
+
+  // BUG-01: denominador correto inclui todos os valores (pago + a receber + atrasado)
+  const totalGeral = totalRecebido + totalReceber + totalAtrasado
   const taxaInadimplencia = totalGeral > 0 ? Math.round((totalAtrasado / totalGeral) * 100) : 0
 
-  const clientesEmAtraso = cobrancasMes
-    .filter((c) => c.status === 'ATRASADO' || (c.status === 'PENDENTE' && new Date(c.vencimento) < agora))
-    .map((c) => ({ id: c.id, nome: c.cliente.nome, valor: Number(c.valor), diasAtraso: diasAtraso(c.vencimento.toISOString()) }))
-    .sort((a, b) => b.diasAtraso - a.diasAtraso)
+  // BUG-02: combinar atrasos do mês + histórico
+  const clientesEmAtraso = [
+    ...atrasadosMes.map((c) => ({ id: c.id, nome: c.cliente.nome, valor: Number(c.valor), diasAtraso: diasAtraso(c.vencimento.toISOString()) })),
+    ...cobrancasAtrasadas.map((c) => ({ id: c.id, nome: c.cliente.nome, valor: Number(c.valor), diasAtraso: diasAtraso(c.vencimento.toISOString()) })),
+  ].sort((a, b) => b.diasAtraso - a.diasAtraso)
 
   // Evolução dos últimos 6 meses
   const meses = Array.from({ length: 6 }, (_, i) => subMonths(agora, 5 - i))
@@ -63,7 +81,7 @@ async function getDashboardData(supabaseId: string) {
   return {
     totalReceber, totalRecebido, totalAtrasado, taxaInadimplencia,
     clientesAtivos, atendimentosMes, clientesEmAtraso, evolucaoMensal,
-    cobrancasPendentes: cobrancasMes.filter((c) => c.status === 'PENDENTE' && new Date(c.vencimento) >= agora),
+    cobrancasPendentes: pendentesNaoVencidos,
   }
 }
 
@@ -92,7 +110,6 @@ export default async function DashboardPage() {
           <StatsCard title="Clientes Ativos" value={String(data.clientesAtivos)} subtitle={`${data.atendimentosMes} atendimentos este mês`} icon={Users} color="indigo" />
         </div>
 
-        {/* Gráfico de evolução mensal */}
         <Card>
           <CardHeader>
             <CardTitle>Evolução Financeira — Últimos 6 meses</CardTitle>

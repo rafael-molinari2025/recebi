@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageSquare, CheckCircle, FileText, Filter, Download } from 'lucide-react'
+import { MessageSquare, CheckCircle, FileText, Filter, Download, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatCurrency, formatDate, getStatusLabel, getStatusColor, diasAtraso } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
@@ -18,20 +19,24 @@ interface CobrancaComCliente extends Omit<Cobranca, 'cliente'> {
 export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }) {
   const router = useRouter()
   const [filtroStatus, setFiltroStatus] = useState<string>('TODOS')
+  const [busca, setBusca] = useState('')
   const [loadingId, setLoadingId] = useState<string | null>(null)
 
-  const filtradas = filtroStatus === 'TODOS'
-    ? cobrancas
-    : cobrancas.filter((c) => c.status === filtroStatus)
+  const filtradas = cobrancas
+    .filter((c) => filtroStatus === 'TODOS' || c.status === filtroStatus)
+    .filter((c) => !busca || c.cliente.nome.toLowerCase().includes(busca.toLowerCase()))
 
-  async function handleMarcarPago(id: string) {
+  async function handleMarcarPago(id: string, nomeCliente: string, valor: number) {
+    // UX-02: confirmação antes de marcar como pago
+    if (!confirm(`Confirmar pagamento de ${formatCurrency(valor)} de ${nomeCliente}?`)) return
     setLoadingId(id)
     const res = await fetch(`/api/cobrancas/${id}/pagar`, { method: 'POST' })
     if (res.ok) {
       toast({ title: 'Pagamento confirmado!', variant: 'success' })
       router.refresh()
     } else {
-      toast({ title: 'Erro ao confirmar pagamento', variant: 'destructive' })
+      const err = await res.json().catch(() => ({}))
+      toast({ title: 'Erro ao confirmar pagamento', description: err.error, variant: 'destructive' })
     }
     setLoadingId(null)
   }
@@ -57,6 +62,15 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
   return (
     <div className="p-6 space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            className="pl-8 w-44"
+            placeholder="Buscar cliente..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+          />
+        </div>
         <Filter className="h-4 w-4 text-gray-400" />
         <Select value={filtroStatus} onValueChange={setFiltroStatus}>
           <SelectTrigger className="w-44">
@@ -135,7 +149,7 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
                             <Button
                               size="sm"
                               variant="success"
-                              onClick={() => handleMarcarPago(c.id)}
+                              onClick={() => handleMarcarPago(c.id, c.cliente.nome, c.valor)}
                               disabled={loadingId === c.id}
                             >
                               <CheckCircle className="h-4 w-4" />

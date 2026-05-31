@@ -26,13 +26,18 @@ export function ClienteDetalheView({ cliente, stats }: Props) {
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => {
             const url = `${window.location.origin}/portal/${cliente.id}`
-            navigator.clipboard.writeText(url)
+            const portalPath = cliente.portalToken ? `/portal/${cliente.portalToken}` : null
+            if (!portalPath) { toast({ title: 'Portal não disponível', description: 'Recadastre o cliente para gerar o link.', variant: 'destructive' }); return }
+            navigator.clipboard.writeText(`${window.location.origin}${portalPath}`)
             toast({ title: 'Link copiado!', description: 'Envie ao cliente para ele ver suas cobranças.', variant: 'success' })
           }}>
             <Copy className="h-4 w-4" />
             Copiar link do portal
           </Button>
-          <Button variant="outline" size="sm" onClick={() => window.open(`/portal/${cliente.id}`, '_blank')}>
+          <Button variant="outline" size="sm" onClick={() => {
+            const portalPath = cliente.portalToken ? `/portal/${cliente.portalToken}` : null
+            if (portalPath) window.open(portalPath, '_blank')
+          }}>
             <ExternalLink className="h-4 w-4" />
             Portal do cliente
           </Button>

@@ -47,9 +47,10 @@ export async function GET(req: NextRequest) {
       include: { cliente: { select: { nome: true } } },
       orderBy: { data: 'desc' },
     })
-    const header = ['Data', 'Cliente', 'Descrição', 'Valor', 'Cobrança gerada']
+    const header = ['Data', 'Cliente', 'Descrição', 'Notas privadas', 'Valor', 'Cobrança gerada']
     const rows = atendimentos.map((a) => [
       formatData(a.data), a.cliente.nome, a.descricao ?? '',
+      (a as any).notas ?? '',
       formatValor(Number(a.valor)), a.gerarCobranca ? 'Sim' : 'Não',
     ])
     csv = toCSV([header, ...rows])

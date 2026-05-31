@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { randomBytes } from 'crypto'
 import { prisma } from '@/lib/prisma'
 import { getAuthUser } from '@/lib/auth'
 
@@ -49,6 +50,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const portalToken = randomBytes(24).toString('hex')
     const cliente = await prisma.cliente.create({
       data: {
         userId: user.id,
@@ -59,6 +61,7 @@ export async function POST(req: NextRequest) {
         valorHonorario: body.valorHonorario,
         diaVencimento: body.diaVencimento,
         observacoes: body.observacoes || null,
+        portalToken,
       },
     })
     return NextResponse.json({ ...cliente, valorHonorario: Number(cliente.valorHonorario) }, { status: 201 })

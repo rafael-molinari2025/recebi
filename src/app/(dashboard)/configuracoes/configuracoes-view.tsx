@@ -67,16 +67,23 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
             {user?.plano === 'STARTER' && (
               <div className="flex gap-2">
                 <Button variant="outline" asChild>
-                  <a href={process.env.NEXT_PUBLIC_STRIPE_LINK_PRO ?? 'https://buy.stripe.com/00w6oIa6Nd9X7L47mx9oc01'} target="_blank" rel="noopener noreferrer">
+                  <a href={process.env.NEXT_PUBLIC_STRIPE_LINK_PRO} target="_blank" rel="noopener noreferrer">
                     Pro — R$ 47/mês
                   </a>
                 </Button>
                 <Button variant="default" asChild>
-                  <a href={process.env.NEXT_PUBLIC_STRIPE_LINK_CLINICA ?? 'https://buy.stripe.com/cNi8wQ6UBgm95CWfT39oc00'} target="_blank" rel="noopener noreferrer">
+                  <a href={process.env.NEXT_PUBLIC_STRIPE_LINK_CLINICA} target="_blank" rel="noopener noreferrer">
                     Clínica — R$ 97/mês
                   </a>
                 </Button>
               </div>
+            )}
+            {user?.plano === 'PRO' && (
+              <Button variant="default" asChild>
+                <a href={process.env.NEXT_PUBLIC_STRIPE_LINK_CLINICA} target="_blank" rel="noopener noreferrer">
+                  Upgrade para Clínica — R$ 97/mês
+                </a>
+              </Button>
             )}
           </div>
         </CardContent>
