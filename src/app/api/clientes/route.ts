@@ -8,6 +8,7 @@ const LIMITES = { STARTER: 5, PRO: 50, CLINICA: 200 }
 
 const clienteSchema = z.object({
   nome: z.string().min(2).max(100),
+  cpfCnpj: z.string().max(18).optional().or(z.literal('')),
   telefone: z.string().min(8).max(20),
   email: z.string().email().optional().or(z.literal('')),
   tipoAtendimento: z.enum(['SESSAO_AVULSA', 'PACOTE_MENSAL', 'PLANO_FIXO']),
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
       data: {
         userId: user.id,
         nome: body.nome,
+        cpfCnpj: body.cpfCnpj || null,
         telefone: body.telefone,
         email: body.email || null,
         tipoAtendimento: body.tipoAtendimento,

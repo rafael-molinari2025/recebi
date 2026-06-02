@@ -35,6 +35,7 @@ model Cliente {
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   nome            String
+  cpfCnpj         String?         // CPF ou CNPJ (necessário para Asaas)
   telefone        String          // WhatsApp
   email           String?
   tipoAtendimento TipoAtendimento

@@ -18,6 +18,7 @@ export interface Cliente {
   id: string
   userId: string
   nome: string
+  cpfCnpj?: string
   telefone: string
   email?: string
   tipoAtendimento: TipoAtendimento

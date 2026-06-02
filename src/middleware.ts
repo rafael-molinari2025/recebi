@@ -8,6 +8,9 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith('/api/webhooks') ||
     pathname.startsWith('/api/lembretes') ||
+    pathname.startsWith('/api/recorrencia') ||
+    pathname.startsWith('/api/backup-email') ||
+    pathname.startsWith('/portal') ||
     pathname === '/favicon.ico' ||
     pathname === '/manifest.json'
   ) {

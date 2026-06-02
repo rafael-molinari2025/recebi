@@ -22,6 +22,7 @@ export function ClienteForm({ open, onClose, cliente }: ClienteFormProps) {
 
   const emptyForm = (): CreateClienteInput => ({
     nome: cliente?.nome ?? '',
+    cpfCnpj: (cliente as any)?.cpfCnpj ?? '',
     telefone: cliente?.telefone ?? '',
     email: cliente?.email ?? '',
     tipoAtendimento: cliente?.tipoAtendimento ?? 'SESSAO_AVULSA',
@@ -80,14 +81,24 @@ export function ClienteForm({ open, onClose, cliente }: ClienteFormProps) {
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label>WhatsApp *</Label>
-            <Input
-              placeholder="(11) 99999-9999"
-              value={form.telefone}
-              onChange={(e) => setForm({ ...form, telefone: e.target.value })}
-              required
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label>WhatsApp *</Label>
+              <Input
+                placeholder="(11) 99999-9999"
+                value={form.telefone}
+                onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>CPF / CNPJ</Label>
+              <Input
+                placeholder="000.000.000-00"
+                value={(form as any).cpfCnpj ?? ''}
+                onChange={(e) => setForm({ ...form, cpfCnpj: e.target.value } as any)}
+              />
+            </div>
           </div>
 
           <div className="space-y-1.5">
@@ -100,7 +111,7 @@ export function ClienteForm({ open, onClose, cliente }: ClienteFormProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label>Tipo de atendimento *</Label>
               <Select
