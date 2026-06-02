@@ -24,12 +24,15 @@ export default async function ClientesPage() {
   const clientesSerializados = clientes.map((c) => ({
     ...c,
     valorHonorario: Number(c.valorHonorario),
+    cpfCnpj: c.cpfCnpj ?? undefined,
     email: c.email ?? undefined,
     observacoes: c.observacoes ?? undefined,
     asaasId: c.asaasId ?? undefined,
+    portalToken: c.portalToken ?? undefined,
     createdAt: c.createdAt.toISOString(),
     updatedAt: c.updatedAt.toISOString(),
   }))
+
 
   return (
     <div>

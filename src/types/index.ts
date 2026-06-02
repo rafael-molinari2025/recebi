@@ -99,6 +99,7 @@ export interface AsaasCharge {
 
 export interface CreateClienteInput {
   nome: string
+  cpfCnpj?: string
   telefone: string
   email?: string
   tipoAtendimento: TipoAtendimento

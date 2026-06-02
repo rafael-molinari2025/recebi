@@ -3,11 +3,17 @@ import { prisma } from '@/lib/prisma'
 import { enviarConfirmacaoPagamento } from '@/lib/whatsapp'
 
 export async function POST(req: NextRequest) {
-  // Verificar token do webhook Asaas (configurar ASAAS_WEBHOOK_TOKEN no Vercel e no painel Asaas)
+  // ASAAS_WEBHOOK_TOKEN é obrigatório — configure-o no painel Asaas e no Vercel
+  const cronSecret = process.env.ASAAS_WEBHOOK_TOKEN
+  if (!cronSecret) {
+    return NextResponse.json({ error: 'Webhook não configurado' }, { status: 503 })
+  }
+
   const token = req.headers.get('asaas-access-token')
-  if (process.env.ASAAS_WEBHOOK_TOKEN && token !== process.env.ASAAS_WEBHOOK_TOKEN) {
+  if (token !== cronSecret) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
   }
+
 
   const body = await req.json()
   const { event, payment } = body

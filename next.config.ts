@@ -9,20 +9,34 @@ const nextConfig: NextConfig = {
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          // X-XSS-Protection removido: obsoleto nos browsers modernos e pode causar problemas
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()',
+          },
           {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
+              // unsafe-inline necessário para Next.js Server/Client Components e estilos inline
               "script-src 'self' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https:",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+              // Inclui Supabase (auth + realtime), Asaas (gateway) e Z-API (WhatsApp)
+              [
+                "connect-src 'self'",
+                'https://*.supabase.co',
+                'wss://*.supabase.co',
+                'https://www.asaas.com',
+                'https://sandbox.asaas.com',
+                'https://api.z-api.io',
+              ].join(' '),
               "frame-ancestors 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
             ].join('; '),
           },
         ],
@@ -32,3 +46,4 @@ const nextConfig: NextConfig = {
 }
 
 export default nextConfig
+
