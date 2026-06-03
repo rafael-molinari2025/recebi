@@ -52,6 +52,8 @@ model Cliente {
   atendimentos    Atendimento[]
   cobrancas       Cobranca[]
 
+  @@index([userId])
+  @@index([asaasId])
   @@map("clientes")
 }
 
@@ -73,6 +75,8 @@ model Atendimento {
 
   cobranca    Cobranca?
 
+  @@index([userId])
+  @@index([clienteId])
   @@map("atendimentos")
 }
 
@@ -110,6 +114,9 @@ model Cobranca {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
+  @@index([userId])
+  @@index([clienteId])
+  @@index([asaasId])
   @@map("cobrancas")
 }
 

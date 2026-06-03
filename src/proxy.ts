@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Ignorar rotas estáticas e webhooks
@@ -59,5 +59,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.json|icons|public).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json|icons|public|api/webhooks|api/lembretes|api/recorrencia|api/backup-email|portal).*)',
+  ],
 }

@@ -22,15 +22,19 @@ export default async function ClientesPage() {
   const clientes = user ? await getClientes(user.id) : []
 
   const clientesSerializados = clientes.map((c) => ({
-    ...c,
-    valorHonorario: Number(c.valorHonorario),
+    id: c.id,
+    userId: c.userId,
+    nome: c.nome,
     cpfCnpj: c.cpfCnpj ?? undefined,
+    telefone: c.telefone,
     email: c.email ?? undefined,
+    tipoAtendimento: c.tipoAtendimento,
+    valorHonorario: Number(c.valorHonorario),
+    diaVencimento: c.diaVencimento,
+    ativo: c.ativo,
     observacoes: c.observacoes ?? undefined,
-    asaasId: c.asaasId ?? undefined,
-    portalToken: c.portalToken ?? undefined,
     createdAt: c.createdAt.toISOString(),
-    updatedAt: c.updatedAt.toISOString(),
+    _count: c._count,
   }))
 
 

@@ -78,10 +78,16 @@ async function getDashboardData(supabaseId: string) {
     }
   })
 
+  // Projeção: soma do valor honorário de clientes ativos com plano fixo/pacote mensal
+  const clientesRecorrentes = await prisma.cliente.findMany({
+    where: { userId: user.id, ativo: true, tipoAtendimento: { in: ['PACOTE_MENSAL', 'PLANO_FIXO'] } }
+  })
+  const projecaoProximoMes = clientesRecorrentes.reduce((acc, c) => acc + Number(c.valorHonorario), 0)
+
   return {
     totalReceber, totalRecebido, totalAtrasado, taxaInadimplencia,
     clientesAtivos, atendimentosMes, clientesEmAtraso, evolucaoMensal,
-    cobrancasPendentes: pendentesNaoVencidos,
+    cobrancasPendentes: pendentesNaoVencidos, projecaoProximoMes,
   }
 }
 
@@ -107,7 +113,7 @@ export default async function DashboardPage() {
           <StatsCard title="A Receber" value={formatCurrency(data.totalReceber)} subtitle="pendente este mês" icon={Clock} color="yellow" />
           <StatsCard title="Recebido" value={formatCurrency(data.totalRecebido)} subtitle="confirmado este mês" icon={DollarSign} color="green" />
           <StatsCard title="Em Atraso" value={formatCurrency(data.totalAtrasado)} subtitle={`${data.taxaInadimplencia}% de inadimplência`} icon={TrendingDown} color="red" />
-          <StatsCard title="Clientes Ativos" value={String(data.clientesAtivos)} subtitle={`${data.atendimentosMes} atendimentos este mês`} icon={Users} color="indigo" />
+          <StatsCard title="Projeção (Recorrente)" value={formatCurrency(data.projecaoProximoMes)} subtitle={`Base de ${data.clientesAtivos} clientes ativos`} icon={Users} color="indigo" />
         </div>
 
         <Card>
@@ -129,16 +135,16 @@ export default async function DashboardPage() {
             </CardHeader>
             <CardContent>
               {data.clientesEmAtraso.length === 0 ? (
-                <div className="text-center py-8"><p className="text-2xl mb-2">🎉</p><p className="text-sm text-gray-500">Nenhum cliente em atraso!</p></div>
+                <div className="text-center py-8"><p className="text-2xl mb-2">🎉</p><p className="text-sm text-gray-500 dark:text-gray-400">Nenhum cliente em atraso!</p></div>
               ) : (
                 <div className="space-y-3">
                   {data.clientesEmAtraso.slice(0, 5).map((c) => (
-                    <div key={c.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                    <div key={c.id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{c.nome}</p>
-                        <p className="text-xs text-red-500">{c.diasAtraso} dia{c.diasAtraso !== 1 ? 's' : ''} em atraso</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{c.nome}</p>
+                        <p className="text-xs text-red-500 dark:text-red-400">{c.diasAtraso} dia{c.diasAtraso !== 1 ? 's' : ''} em atraso</p>
                       </div>
-                      <span className="text-sm font-semibold text-red-600">{formatCurrency(c.valor)}</span>
+                      <span className="text-sm font-semibold text-red-600 dark:text-red-500">{formatCurrency(c.valor)}</span>
                     </div>
                   ))}
                 </div>
@@ -150,16 +156,16 @@ export default async function DashboardPage() {
             <CardHeader><CardTitle>Próximos Vencimentos</CardTitle></CardHeader>
             <CardContent>
               {data.cobrancasPendentes.length === 0 ? (
-                <div className="text-center py-8"><p className="text-sm text-gray-500">Sem cobranças pendentes.</p></div>
+                <div className="text-center py-8"><p className="text-sm text-gray-500 dark:text-gray-400">Sem cobranças pendentes.</p></div>
               ) : (
                 <div className="space-y-3">
                   {data.cobrancasPendentes.slice(0, 5).map((c) => (
-                    <div key={c.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                    <div key={c.id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{c.cliente.nome}</p>
-                        <p className="text-xs text-gray-400">Vence em {formatDate(c.vencimento.toISOString())}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{c.cliente.nome}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">Vence em {formatDate(c.vencimento.toISOString())}</p>
                       </div>
-                      <span className="text-sm font-semibold text-gray-900">{formatCurrency(Number(c.valor))}</span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{formatCurrency(Number(c.valor))}</span>
                     </div>
                   ))}
                 </div>

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { formatCurrency, formatDate, getStatusLabel } from '@/lib/utils'
-
+import { SolicitarAgendamento } from '@/components/portal/solicitar-agendamento'
 export default async function PortalClientePage({
   params,
 }: {
@@ -41,6 +41,8 @@ export default async function PortalClientePage({
           {cliente.user.profissao ? ` — ${cliente.user.profissao}` : ''}.
         </p>
       </div>
+      
+      <SolicitarAgendamento token={token} />
 
       {cliente.cobrancas.length === 0 ? (
         <p style={{ color: '#999', textAlign: 'center', padding: 32 }}>Nenhuma cobrança encontrada.</p>

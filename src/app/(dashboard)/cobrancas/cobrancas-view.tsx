@@ -44,20 +44,25 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
     e.preventDefault()
     if (!editando) return
     setEditLoading(true)
-    const res = await fetch(`/api/cobrancas/${editando.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...editForm, valor: Number(editForm.valor) }),
-    })
-    if (res.ok) {
-      toast({ title: 'Cobrança atualizada!', variant: 'success' })
-      setEditando(null)
-      router.refresh()
-    } else {
-      const err = await res.json().catch(() => ({}))
-      toast({ title: 'Erro', description: err.message, variant: 'destructive' })
+    try {
+      const res = await fetch(`/api/cobrancas/${editando.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...editForm, valor: Number(editForm.valor) }),
+      })
+      if (res.ok) {
+        toast({ title: 'Cobrança atualizada!', variant: 'success' })
+        setEditando(null)
+        router.refresh()
+      } else {
+        const err = await res.json().catch(() => ({}))
+        toast({ title: 'Erro', description: err.message || 'Erro desconhecido', variant: 'destructive' })
+      }
+    } catch (err) {
+      toast({ title: 'Erro de Conexão', description: 'Não foi possível se conectar.', variant: 'destructive' })
+    } finally {
+      setEditLoading(false)
     }
-    setEditLoading(false)
   }
 
   async function handleMarcarPago(id: string, nomeCliente: string, valor: number) {
@@ -186,9 +191,9 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
                         )}
                         {c.status === 'PAGO' && (
                           <>
-                            <Button size="sm" variant="outline" onClick={() => window.open(`/api/recibo/${c.id}`, '_blank')}>
+                            <Button size="sm" variant="outline" onClick={() => window.open(`/api/recibo/${c.id}/pdf`, '_blank')}>
                               <FileText className="h-4 w-4" />
-                              Recibo
+                              Recibo PDF
                             </Button>
                             <Button size="sm" variant="ghost" onClick={() => handleEstornar(c.id, c.cliente.nome)}
                               disabled={loadingId === c.id} title="Estornar pagamento">

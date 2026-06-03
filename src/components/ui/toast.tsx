@@ -26,9 +26,9 @@ const Toast = React.forwardRef<
     ref={ref}
     className={cn(
       'pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden rounded-xl border p-4 shadow-lg transition-all duration-200',
-      variant === 'success' && 'border-green-200 bg-green-50 text-green-900',
-      variant === 'destructive' && 'border-red-200 bg-red-50 text-red-900',
-      variant === 'default' && 'border-gray-200 bg-white text-gray-900',
+      variant === 'success' && 'border-green-200 bg-green-50 text-green-900 dark:border-green-900/50 dark:bg-green-900/20 dark:text-green-300',
+      variant === 'destructive' && 'border-red-200 bg-red-50 text-red-900 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-300',
+      variant === 'default' && 'border-gray-200 bg-white text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100',
       className
     )}
     {...props}
