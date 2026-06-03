@@ -29,11 +29,11 @@ export default async function ClientesPage() {
     telefone: c.telefone,
     email: c.email ?? undefined,
     tipoAtendimento: c.tipoAtendimento,
-    valorHonorario: Number(c.valorHonorario),
+    valorHonorario: isNaN(Number(c.valorHonorario)) ? 0 : Number(c.valorHonorario),
     diaVencimento: c.diaVencimento,
     ativo: c.ativo,
     observacoes: c.observacoes ?? undefined,
-    createdAt: c.createdAt.toISOString(),
+    createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString(),
     _count: c._count,
   }))
 

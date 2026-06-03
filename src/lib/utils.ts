@@ -35,7 +35,8 @@ export function diasAtraso(vencimento: string | Date): number {
   return differenceInDays(new Date(), d)
 }
 
-export function formatTelefone(tel: string): string {
+export function formatTelefone(tel?: string | null): string {
+  if (!tel) return ''
   const digits = tel.replace(/\D/g, '')
   if (digits.length === 11) {
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
