@@ -192,7 +192,7 @@ export default function LandingPage() {
       </section>
 
       {/* DEPOIMENTOS */}
-      <section className="py-20 px-4 bg-indigo-600">
+      <section className="py-20 px-4 bg-indigo-600 text-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Quem já usa o Recebi</h2>
@@ -332,7 +332,7 @@ export default function LandingPage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-gray-900 py-12 px-4">
+      <footer className="bg-gray-900 py-12 px-4 text-white">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">

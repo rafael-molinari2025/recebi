@@ -39,7 +39,7 @@ export function Sidebar() {
     <>
       <button 
         onClick={() => setIsOpen(true)}
-        className="md:hidden fixed top-3 left-4 z-40 p-2 bg-white dark:bg-gray-950 rounded-md border border-gray-200 dark:border-gray-800 shadow-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="md:hidden fixed top-3 left-4 z-40 p-2 bg-white dark:bg-gray-950 rounded-md border border-gray-200 dark:border-gray-800 shadow-sm text-gray-600 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       >
         <Menu className="h-5 w-5" />
       </button>
