@@ -21,19 +21,32 @@ export default async function CobrancasPage() {
   const cobrancas = user ? await getCobrancas(user.id) : []
 
   const serializadas = cobrancas.map((c) => ({
-    ...c,
-    valor: Number(c.valor),
-    vencimento: c.vencimento.toISOString(),
-    pagamentoEm: c.pagamentoEm?.toISOString() ?? undefined,
+    id: c.id,
+    userId: c.userId,
+    clienteId: c.clienteId,
+    atendimentoId: c.atendimentoId ?? undefined,
+    valor: isNaN(Number(c.valor)) ? 0 : Number(c.valor),
+    vencimento: c.vencimento ? new Date(c.vencimento).toISOString() : new Date().toISOString(),
+    status: c.status,
     descricao: c.descricao ?? undefined,
     asaasId: c.asaasId ?? undefined,
     linkPagamento: c.linkPagamento ?? undefined,
     pixCopiaECola: c.pixCopiaECola ?? undefined,
     boletoUrl: c.boletoUrl ?? undefined,
+    reciboGerado: !!c.reciboGerado,
     reciboUrl: c.reciboUrl ?? undefined,
-    atendimentoId: c.atendimentoId ?? undefined,
-    createdAt: c.createdAt.toISOString(),
-    updatedAt: c.updatedAt.toISOString(),
+    lembreteEnviado3d: !!c.lembreteEnviado3d,
+    lembreteEnviado1d: !!c.lembreteEnviado1d,
+    lembreteAtraso1d: !!c.lembreteAtraso1d,
+    lembreteAtraso7d: !!c.lembreteAtraso7d,
+    pagamentoEm: c.pagamentoEm ? new Date(c.pagamentoEm).toISOString() : undefined,
+    createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString(),
+    updatedAt: c.updatedAt ? new Date(c.updatedAt).toISOString() : new Date().toISOString(),
+    cliente: {
+      id: c.cliente?.id || '',
+      nome: c.cliente?.nome || '',
+      telefone: c.cliente?.telefone || '',
+    }
   }))
 
   return (

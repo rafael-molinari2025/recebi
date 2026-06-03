@@ -55,8 +55,8 @@ async function getDashboardData(supabaseId: string) {
 
   // BUG-02: combinar atrasos do mês + histórico
   const clientesEmAtraso = [
-    ...atrasadosMes.map((c) => ({ id: c.id, nome: c.cliente.nome, valor: Number(c.valor), diasAtraso: diasAtraso(c.vencimento.toISOString()) })),
-    ...cobrancasAtrasadas.map((c) => ({ id: c.id, nome: c.cliente.nome, valor: Number(c.valor), diasAtraso: diasAtraso(c.vencimento.toISOString()) })),
+    ...atrasadosMes.map((c) => ({ id: c.id, nome: c.cliente?.nome || '', valor: isNaN(Number(c.valor)) ? 0 : Number(c.valor), diasAtraso: c.vencimento ? diasAtraso(c.vencimento.toISOString()) : 0 })),
+    ...cobrancasAtrasadas.map((c) => ({ id: c.id, nome: c.cliente?.nome || '', valor: isNaN(Number(c.valor)) ? 0 : Number(c.valor), diasAtraso: c.vencimento ? diasAtraso(c.vencimento.toISOString()) : 0 })),
   ].sort((a, b) => b.diasAtraso - a.diasAtraso)
 
   // Evolução dos últimos 6 meses
@@ -72,9 +72,9 @@ async function getDashboardData(supabaseId: string) {
     const doMes = cobrancas6m.filter((c) => c.vencimento >= inicio && c.vencimento <= fim)
     return {
       mes: format(m, 'MMM', { locale: ptBR }),
-      recebido: doMes.filter((c) => c.status === 'PAGO').reduce((acc, c) => acc + Number(c.valor), 0),
-      pendente: doMes.filter((c) => c.status === 'PENDENTE').reduce((acc, c) => acc + Number(c.valor), 0),
-      atrasado: doMes.filter((c) => c.status === 'ATRASADO').reduce((acc, c) => acc + Number(c.valor), 0),
+      recebido: doMes.filter((c) => c.status === 'PAGO').reduce((acc, c) => acc + (isNaN(Number(c.valor)) ? 0 : Number(c.valor)), 0),
+      pendente: doMes.filter((c) => c.status === 'PENDENTE').reduce((acc, c) => acc + (isNaN(Number(c.valor)) ? 0 : Number(c.valor)), 0),
+      atrasado: doMes.filter((c) => c.status === 'ATRASADO').reduce((acc, c) => acc + (isNaN(Number(c.valor)) ? 0 : Number(c.valor)), 0),
     }
   })
 
@@ -82,12 +82,19 @@ async function getDashboardData(supabaseId: string) {
   const clientesRecorrentes = await prisma.cliente.findMany({
     where: { userId: user.id, ativo: true, tipoAtendimento: { in: ['PACOTE_MENSAL', 'PLANO_FIXO'] } }
   })
-  const projecaoProximoMes = clientesRecorrentes.reduce((acc, c) => acc + Number(c.valorHonorario), 0)
+  const projecaoProximoMes = clientesRecorrentes.reduce((acc, c) => acc + (isNaN(Number(c.valorHonorario)) ? 0 : Number(c.valorHonorario)), 0)
+
+  const cobrancasPendentesSafe = pendentesNaoVencidos.map((c) => ({
+    id: c.id,
+    cliente: { nome: c.cliente?.nome || '' },
+    vencimento: c.vencimento ? c.vencimento.toISOString() : new Date().toISOString(),
+    valor: isNaN(Number(c.valor)) ? 0 : Number(c.valor),
+  }))
 
   return {
     totalReceber, totalRecebido, totalAtrasado, taxaInadimplencia,
     clientesAtivos, atendimentosMes, clientesEmAtraso, evolucaoMensal,
-    cobrancasPendentes: pendentesNaoVencidos, projecaoProximoMes,
+    cobrancasPendentes: cobrancasPendentesSafe, projecaoProximoMes,
   }
 }
 

@@ -37,6 +37,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     })
     return NextResponse.json({ ...atualizada, valor: Number(atualizada.valor) })
   } catch (err) {
+    console.error(err)
     console.error('[PUT /api/cobrancas/:id]', err)
     return NextResponse.json({ message: 'Erro ao atualizar cobrança.' }, { status: 500 })
   }

@@ -84,6 +84,7 @@ export async function POST(req: NextRequest) {
     })
     return NextResponse.json({ ...cobranca, valor: Number(cobranca.valor) }, { status: 201 })
   } catch (err) {
+    console.error(err)
     console.error('[POST /api/cobrancas]', err)
     return NextResponse.json({ message: 'Erro interno ao criar cobrança.' }, { status: 500 })
   }

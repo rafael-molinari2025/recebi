@@ -48,6 +48,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     return NextResponse.json({ ...atualizado, valorHonorario: Number(atualizado.valorHonorario) })
   } catch (err) {
+    console.error(err)
     console.error('[PUT /api/clientes/:id]', err)
     return NextResponse.json({ message: 'Erro interno ao atualizar cliente.' }, { status: 500 })
   }

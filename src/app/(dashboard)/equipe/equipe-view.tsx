@@ -10,7 +10,15 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from '@/hooks/use-toast'
 import { Trash2, UserPlus, Users } from 'lucide-react'
 
-export function EquipeView({ isClinica, membrosIniciais }: { isClinica: boolean, membrosIniciais: any[] }) {
+interface Membro {
+  id: string
+  membroId: string
+  email: string
+  status: string
+  membro?: { nome: string } | null
+}
+
+export function EquipeView({ isClinica, membrosIniciais }: { isClinica: boolean, membrosIniciais: Membro[] }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')

@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
     })
     return NextResponse.json({ ...cliente, valorHonorario: Number(cliente.valorHonorario) }, { status: 201 })
   } catch (err) {
+    console.error(err)
     console.error('[POST /api/clientes]', err)
     return NextResponse.json({ message: 'Erro interno ao criar cliente.' }, { status: 500 })
   }

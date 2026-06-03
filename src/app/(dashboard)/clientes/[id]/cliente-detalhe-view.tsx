@@ -7,9 +7,16 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency, formatDate, getStatusLabel, getStatusColor, getTipoAtendimentoLabel } from '@/lib/utils'
+import type { Cliente, Atendimento, Cobranca } from '@/types'
+
+interface ClienteDetalhado extends Cliente {
+  portalToken?: string | null
+  atendimentos: (Atendimento & { cobranca?: Cobranca })[]
+  cobrancas: Cobranca[]
+}
 
 interface Props {
-  cliente: any
+  cliente: ClienteDetalhado
   stats: { totalPago: number; totalPendente: number; totalAtrasado: number }
 }
 
@@ -128,7 +135,7 @@ export function ClienteDetalheView({ cliente, stats }: Props) {
             <p className="text-sm text-gray-400 p-6">Nenhum atendimento registrado.</p>
           ) : (
             <div className="divide-y divide-gray-100">
-              {cliente.atendimentos.map((a: any) => (
+              {cliente.atendimentos.map((a) => (
                 <div key={a.id} className="flex items-center justify-between px-6 py-3">
                   <div>
                     <p className="text-sm font-medium text-gray-900">{formatDate(a.data)}</p>
@@ -159,7 +166,7 @@ export function ClienteDetalheView({ cliente, stats }: Props) {
             <p className="text-sm text-gray-400 p-6">Nenhuma cobrança registrada.</p>
           ) : (
             <div className="divide-y divide-gray-100">
-              {cliente.cobrancas.map((c: any) => (
+              {cliente.cobrancas.map((c) => (
                 <div key={c.id} className="flex items-center justify-between px-6 py-3">
                   <div>
                     <p className="text-sm font-medium text-gray-900">Vence {formatDate(c.vencimento)}</p>

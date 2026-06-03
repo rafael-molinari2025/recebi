@@ -87,7 +87,7 @@ model Cobranca {
   clienteId       String
   cliente         Cliente         @relation(fields: [clienteId], references: [id], onDelete: Cascade)
   atendimentoId   String?         @unique
-  atendimento     Atendimento?    @relation(fields: [atendimentoId], references: [id])
+  atendimento     Atendimento?    @relation(fields: [atendimentoId], references: [id], onDelete: SetNull)
 
   valor           Decimal         @db.Decimal(10, 2)
   vencimento      DateTime
