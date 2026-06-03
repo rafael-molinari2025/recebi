@@ -7,13 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { RevenueChart } from '@/components/dashboard/revenue-chart'
 import { prisma } from '@/lib/prisma'
-import { createClient } from '@/lib/supabase/server'
+import { getSupabaseUser, getPrismaUser } from '@/lib/auth'
 import { formatCurrency, formatDate, diasAtraso } from '@/lib/utils'
 import { subMonths, startOfMonth, endOfMonth, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 async function getDashboardData(supabaseId: string) {
-  const user = await prisma.user.findUnique({ where: { supabaseId } })
+  const user = await getPrismaUser(supabaseId)
   if (!user) return null
 
   const agora = new Date()
@@ -99,8 +99,7 @@ async function getDashboardData(supabaseId: string) {
 }
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getSupabaseUser()
   const data = user ? await getDashboardData(user.id) : null
 
   if (!data) {

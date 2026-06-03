@@ -1,10 +1,10 @@
-import { createClient as createSupabaseClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { getSupabaseUser, getPrismaUser } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { CobrancasView } from './cobrancas-view'
 
 async function getCobrancas(supabaseId: string) {
-  const user = await prisma.user.findUnique({ where: { supabaseId } })
+  const user = await getPrismaUser(supabaseId)
   if (!user) return []
 
   return prisma.cobranca.findMany({
@@ -16,8 +16,7 @@ async function getCobrancas(supabaseId: string) {
 }
 
 export default async function CobrancasPage() {
-  const supabase = await createSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getSupabaseUser()
   const cobrancas = user ? await getCobrancas(user.id) : []
 
   const serializadas = cobrancas.map((c) => ({

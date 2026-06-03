@@ -36,7 +36,7 @@ const DialogContent = React.forwardRef<
       )}
       {...props}
     >
-      <div className="overflow-y-auto flex-1 p-4 sm:p-6">
+      <div className="overflow-y-auto flex-1 px-4 pt-4 sm:px-6 sm:pt-6">
         {children}
       </div>
       <DialogClose className="absolute right-3 top-3 z-10 rounded-sm p-1 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none">
@@ -68,7 +68,7 @@ const DialogDescription = React.forwardRef<
 DialogDescription.displayName = DialogPrimitive.Description.displayName
 
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex justify-end gap-3 mt-6', className)} {...props} />
+  <div className={cn('flex justify-end gap-3 mt-4 pt-4 pb-4 sm:pb-6 sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800', className)} {...props} />
 )
 
 export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose }

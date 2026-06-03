@@ -1,10 +1,10 @@
-import { createClient as createSupabaseClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { getSupabaseUser, getPrismaUser } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { AtendimentosView } from './atendimentos-view'
 
 async function getData(supabaseId: string) {
-  const user = await prisma.user.findUnique({ where: { supabaseId } })
+  const user = await getPrismaUser(supabaseId)
   if (!user) return { atendimentos: [], clientes: [] }
 
   const [atendimentos, clientes] = await Promise.all([
@@ -35,8 +35,7 @@ async function getData(supabaseId: string) {
 }
 
 export default async function AtendimentosPage() {
-  const supabase = await createSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getSupabaseUser()
   const { atendimentos, clientes } = user ? await getData(user.id) : { atendimentos: [], clientes: [] }
 
   return (

@@ -1,10 +1,10 @@
-import { createClient as createSupabaseClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { getSupabaseUser, getPrismaUser } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { ClientesView } from './clientes-view'
 
 async function getClientes(supabaseId: string) {
-  const user = await prisma.user.findUnique({ where: { supabaseId } })
+  const user = await getPrismaUser(supabaseId)
   if (!user) return []
 
   return prisma.cliente.findMany({
@@ -17,8 +17,7 @@ async function getClientes(supabaseId: string) {
 }
 
 export default async function ClientesPage() {
-  const supabase = await createSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getSupabaseUser()
   const clientes = user ? await getClientes(user.id) : []
 
   const clientesSerializados = clientes.map((c) => ({

@@ -1,5 +1,18 @@
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+
+// Cached per-request: layout + page share one Supabase auth call.
+export const getSupabaseUser = cache(async () => {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user
+})
+
+// Cached per-request: multiple server components share one DB lookup.
+export const getPrismaUser = cache(async (supabaseId: string) => {
+  return prisma.user.findUnique({ where: { supabaseId } })
+})
 
 export async function getAuthUser() {
   const supabase = await createClient()

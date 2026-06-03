@@ -1,11 +1,11 @@
-import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { getSupabaseUser, getPrismaUser } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { AgendaView } from './agenda-view'
 import { startOfMonth, endOfMonth } from 'date-fns'
 
 async function getData(supabaseId: string) {
-  const user = await prisma.user.findUnique({ where: { supabaseId } })
+  const user = await getPrismaUser(supabaseId)
   if (!user) return []
 
   const agora = new Date()
@@ -29,8 +29,7 @@ async function getData(supabaseId: string) {
 }
 
 export default async function AgendaPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getSupabaseUser()
   const atendimentos = user ? await getData(user.id) : []
 
   return (

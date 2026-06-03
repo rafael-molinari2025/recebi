@@ -1,16 +1,11 @@
-import { createClient as createSupabaseClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
+import { getSupabaseUser, getPrismaUser } from '@/lib/auth'
 import { Header } from '@/components/layout/header'
 import { EquipeView } from './equipe-view'
 
-async function getUser(supabaseId: string) {
-  return prisma.user.findUnique({ where: { supabaseId } })
-}
-
 export default async function EquipePage() {
-  const supabase = await createSupabaseClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
-  const user = authUser ? await getUser(authUser.id) : null
+  const authUser = await getSupabaseUser()
+  const user = authUser ? await getPrismaUser(authUser.id) : null
 
   const isClinica = user?.plano === 'CLINICA'
 
