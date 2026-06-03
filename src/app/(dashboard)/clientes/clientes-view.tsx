@@ -50,8 +50,8 @@ export function ClientesView({ clientes }: { clientes: Cliente[] }) {
 
   return (
     <div className="p-6 space-y-4">
-      <div className="flex gap-3">
-        <div className="relative flex-1">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             className="pl-9"
@@ -60,13 +60,13 @@ export function ClientesView({ clientes }: { clientes: Cliente[] }) {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Button variant="outline" onClick={() => window.open('/api/exportar?tipo=clientes', '_blank')}>
+        <Button variant="outline" className="shrink-0" onClick={() => window.open('/api/exportar?tipo=clientes', '_blank')}>
           <Download className="h-4 w-4" />
-          Exportar CSV
+          <span className="hidden sm:inline">Exportar CSV</span>
         </Button>
-        <Button onClick={() => { setEditCliente(undefined); setFormOpen(true) }}>
+        <Button className="shrink-0" onClick={() => { setEditCliente(undefined); setFormOpen(true) }}>
           <Plus className="h-4 w-4" />
-          Novo cliente
+          <span className="hidden sm:inline">Novo cliente</span>
         </Button>
       </div>
 
