@@ -31,13 +31,15 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed left-1/2 top-1/2 z-50 w-[90vw] max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl max-h-[90vh] overflow-y-auto translate-x-[-50%] translate-y-[-50%] rounded-xl bg-white dark:bg-gray-900 p-4 sm:p-6 shadow-xl',
+        'fixed left-1/2 top-1/2 z-50 flex flex-col w-[90vw] max-w-lg max-h-[85vh] translate-x-[-50%] translate-y-[-50%] rounded-xl bg-white dark:bg-gray-900 shadow-xl overflow-hidden',
         className
       )}
       {...props}
     >
-      {children}
-      <DialogClose className="absolute right-4 top-4 rounded-sm p-1 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none">
+      <div className="overflow-y-auto flex-1 p-4 sm:p-6">
+        {children}
+      </div>
+      <DialogClose className="absolute right-3 top-3 z-10 rounded-sm p-1 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none">
         <X className="h-4 w-4" />
       </DialogClose>
     </DialogPrimitive.Content>
@@ -46,7 +48,7 @@ const DialogContent = React.forwardRef<
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('mb-4', className)} {...props} />
+  <div className={cn('mb-4 pr-8', className)} {...props} />
 )
 
 const DialogTitle = React.forwardRef<

@@ -98,7 +98,7 @@ export function ClienteForm({ open, onClose, cliente }: ClienteFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={(val) => { if (!val) onClose() }}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{cliente ? 'Editar Cliente' : 'Novo Cliente'}</DialogTitle>
         </DialogHeader>

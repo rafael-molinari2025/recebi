@@ -111,8 +111,8 @@ export function AtendimentosView({ atendimentos, clientes }: Props) {
       {atendimentos.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-4xl mb-3">📋</p>
-          <p className="text-gray-900 font-medium">Nenhum atendimento registrado</p>
-          <p className="text-sm text-gray-500 mt-1">Registre o primeiro atendimento para começar a cobrar</p>
+          <p className="text-gray-900 dark:text-white font-medium">Nenhum atendimento registrado</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Registre o primeiro atendimento para começar a cobrar</p>
           <Button className="mt-4" onClick={abrirNovo}>
             <Plus className="h-4 w-4" />
             Registrar atendimento
@@ -122,17 +122,17 @@ export function AtendimentosView({ atendimentos, clientes }: Props) {
         <div className="space-y-2">
           {atendimentos.map((a) => (
             <Card key={a.id}>
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 shrink-0">
-                  <Calendar className="h-5 w-5 text-indigo-600" />
+              <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900/30 shrink-0">
+                  <Calendar className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900">{(a as any).cliente?.nome ?? '—'}</p>
-                  <p className="text-xs text-gray-400">{formatDate(a.data)}{a.descricao ? ` • ${a.descricao}` : ''}</p>
-                  {a.notas && <p className="text-xs text-indigo-500 mt-0.5 truncate">📝 {a.notas}</p>}
+                  <p className="font-medium text-gray-900 dark:text-white">{(a as any).cliente?.nome ?? '—'}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">{formatDate(a.data)}{a.descricao ? ` • ${a.descricao}` : ''}</p>
+                  {a.notas && <p className="text-xs text-indigo-500 dark:text-indigo-400 mt-0.5 truncate">📝 {a.notas}</p>}
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="font-semibold text-gray-900">{formatCurrency(a.valor)}</span>
+                <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                  <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(a.valor)}</span>
                   {a.gerarCobranca && (
                     <Badge variant="success">
                       <CheckCircle className="h-3 w-3 mr-1" />
@@ -153,7 +153,7 @@ export function AtendimentosView({ atendimentos, clientes }: Props) {
       )}
 
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>{editando ? 'Editar Atendimento' : 'Registrar Atendimento'}</DialogTitle>
           </DialogHeader>
@@ -198,7 +198,7 @@ export function AtendimentosView({ atendimentos, clientes }: Props) {
             <div className="space-y-1.5">
               <Label>Notas privadas <span className="text-xs text-gray-400">(não aparecem no recibo)</span></Label>
               <textarea
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
                 rows={3}
                 placeholder="Anotações clínicas, observações da sessão..."
                 value={form.notas}

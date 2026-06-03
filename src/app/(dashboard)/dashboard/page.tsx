@@ -170,7 +170,7 @@ export default async function DashboardPage() {
                     <div key={c.id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{c.cliente.nome}</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">Vence em {formatDate(c.vencimento.toISOString())}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">Vence em {formatDate(c.vencimento)}</p>
                       </div>
                       <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{formatCurrency(Number(c.valor))}</span>
                     </div>

@@ -73,8 +73,8 @@ export function ClientesView({ clientes }: { clientes: Cliente[] }) {
       {filtrados.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-4xl mb-3">👥</p>
-          <p className="text-gray-900 font-medium">Nenhum cliente encontrado</p>
-          <p className="text-sm text-gray-500 mt-1">Cadastre seu primeiro cliente para começar</p>
+          <p className="text-gray-900 dark:text-white font-medium">Nenhum cliente encontrado</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Cadastre seu primeiro cliente para começar</p>
           <Button className="mt-4" onClick={() => { setEditCliente(undefined); setFormOpen(true) }}>
             <Plus className="h-4 w-4" />
             Cadastrar cliente
@@ -87,25 +87,25 @@ export function ClientesView({ clientes }: { clientes: Cliente[] }) {
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate">{c.nome}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">{getTipoAtendimentoLabel(c.tipoAtendimento)}</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white truncate">{c.nome}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{getTipoAtendimentoLabel(c.tipoAtendimento)}</p>
                   </div>
                   <Badge variant={c.ativo ? 'success' : 'secondary'}>
                     {c.ativo ? 'Ativo' : 'Inativo'}
                   </Badge>
                 </div>
 
-                <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-1">
                   <Phone className="h-3.5 w-3.5 shrink-0" />
                   <span>{formatTelefone(c.telefone)}</span>
                 </div>
 
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                  <span className="text-lg font-bold text-indigo-600">{formatCurrency(c.valorHonorario)}</span>
-                  <span className="text-xs text-gray-400">vence dia {c.diaVencimento}</span>
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                  <span className="text-lg font-bold text-indigo-600 dark:text-indigo-400">{formatCurrency(c.valorHonorario)}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">vence dia {c.diaVencimento}</span>
                 </div>
 
-                <div className="flex gap-2 mt-3">
+                <div className="flex gap-2 mt-3 flex-wrap">
                   <Button
                     size="sm"
                     variant="outline"

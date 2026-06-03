@@ -136,8 +136,8 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
       {filtradas.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-4xl mb-3">💳</p>
-          <p className="text-gray-900 font-medium">Nenhuma cobrança encontrada</p>
-          <p className="text-sm text-gray-500 mt-1">As cobranças aparecem automaticamente ao registrar atendimentos</p>
+          <p className="text-gray-900 dark:text-white font-medium">Nenhuma cobrança encontrada</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">As cobranças aparecem automaticamente ao registrar atendimentos</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -146,10 +146,10 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
             return (
               <Card key={c.id}>
                 <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-medium text-gray-900">{c.cliente.nome}</p>
+                        <p className="font-medium text-gray-900 dark:text-white">{c.cliente.nome}</p>
                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(c.status)}`}>
                           {getStatusLabel(c.status)}
                         </span>
@@ -157,7 +157,7 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
                           <Badge variant="destructive">{atraso}d em atraso</Badge>
                         )}
                       </div>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                         Vence em {formatDate(c.vencimento)}
                         {c.descricao && ` • ${c.descricao}`}
                       </p>
@@ -169,8 +169,8 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-                      <span className="text-lg font-bold text-gray-900">{formatCurrency(c.valor)}</span>
+                    <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end mt-2 sm:mt-0">
+                      <span className="text-lg font-bold text-gray-900 dark:text-white">{formatCurrency(c.valor)}</span>
                       <div className="flex gap-1">
                         {c.status !== 'PAGO' && c.status !== 'CANCELADO' && c.status !== 'ESTORNADO' && (
                           <>
