@@ -47,10 +47,10 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     const zapiStatus = err?.response?.status
     console.error('[lembrete] Erro ao enviar WhatsApp. Status:', zapiStatus, err?.response?.data)
     const mensagem = zapiStatus === 401
-      ? 'Token Z-API inválido. Verifique as credenciais no Vercel.'
+      ? 'Chave da Evolution API inválida. Verifique EVOLUTION_API_KEY no Vercel.'
       : zapiStatus === 404
-      ? 'Instância Z-API não encontrada. Verifique o ZAPI_INSTANCE_ID.'
-      : 'WhatsApp não está conectado. Escaneie o QR Code no painel da Z-API.'
+      ? 'Instância não encontrada. Verifique EVOLUTION_INSTANCE no Vercel.'
+      : 'WhatsApp desconectado. Reconecte em Configurações → WhatsApp.'
     return NextResponse.json({ message: mensagem }, { status: 500 })
   }
 

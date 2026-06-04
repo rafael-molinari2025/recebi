@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,91 @@ import type { User } from '@/types'
 interface Integracoes {
   asaas: boolean
   whatsapp: boolean
+}
+
+function WhatsAppCard() {
+  const [status, setStatus] = useState<'loading' | 'connected' | 'disconnected' | 'unconfigured'>('loading')
+  const [qrcode, setQrcode] = useState<string | null>(null)
+  const [loadingQr, setLoadingQr] = useState(false)
+
+  const checkStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/whatsapp/status')
+      const data = await res.json()
+      if (!data.configured) { setStatus('unconfigured'); return }
+      setStatus(data.connected ? 'connected' : 'disconnected')
+      if (data.connected) setQrcode(null)
+    } catch { setStatus('disconnected') }
+  }, [])
+
+  useEffect(() => {
+    checkStatus()
+    const interval = setInterval(checkStatus, 5000)
+    return () => clearInterval(interval)
+  }, [checkStatus])
+
+  async function handleConectar() {
+    setLoadingQr(true)
+    setQrcode(null)
+    try {
+      const res = await fetch('/api/whatsapp/qrcode')
+      const data = await res.json()
+      if (data.connected) { setStatus('connected'); return }
+      if (data.qrcode) setQrcode(data.qrcode)
+      else toast({ title: 'Erro ao gerar QR Code', variant: 'destructive' })
+    } catch {
+      toast({ title: 'Erro ao buscar QR Code', variant: 'destructive' })
+    } finally { setLoadingQr(false) }
+  }
+
+  if (status === 'unconfigured') return null
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>WhatsApp</CardTitle>
+        <CardDescription>Conecte o WhatsApp para envio automático de lembretes</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-gray-900 dark:text-white">Status da conexão</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {status === 'loading' ? 'Verificando...' : status === 'connected' ? 'WhatsApp conectado' : 'Desconectado'}
+            </p>
+          </div>
+          <Badge variant={status === 'connected' ? 'success' : status === 'loading' ? 'secondary' : 'destructive'}>
+            {status === 'loading' ? 'Verificando' : status === 'connected' ? 'Conectado' : 'Desconectado'}
+          </Badge>
+        </div>
+
+        {status === 'disconnected' && !qrcode && (
+          <Button onClick={handleConectar} disabled={loadingQr} className="w-full">
+            {loadingQr ? 'Gerando QR Code...' : 'Conectar WhatsApp'}
+          </Button>
+        )}
+
+        {qrcode && (
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+              Abra o WhatsApp → <strong>Aparelhos conectados</strong> → <strong>Conectar aparelho</strong> → Escaneie o código abaixo
+            </p>
+            <img src={qrcode} alt="QR Code WhatsApp" className="w-48 h-48 rounded-lg border border-gray-200" />
+            <p className="text-xs text-gray-400 text-center">O código expira em 60 segundos. A página atualiza automaticamente após conexão.</p>
+            <Button variant="outline" onClick={handleConectar} disabled={loadingQr} size="sm">
+              Gerar novo QR Code
+            </Button>
+          </div>
+        )}
+
+        {status === 'connected' && (
+          <Button variant="outline" onClick={handleConectar} size="sm">
+            Reconectar WhatsApp
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  )
 }
 
 export function ConfiguracoesView({ user, integracoes }: { user: User | null; integracoes: Integracoes }) {
@@ -144,6 +229,9 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
           </form>
         </CardContent>
       </Card>
+
+      {/* WhatsApp */}
+      <WhatsAppCard />
 
       {/* Integrações */}
       <Card>
