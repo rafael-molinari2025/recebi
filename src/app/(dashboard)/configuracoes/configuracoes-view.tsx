@@ -67,12 +67,18 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
             {user?.plano === 'STARTER' && (
               <div className="flex gap-2">
                 <Button variant="outline" asChild>
-                  <a href={process.env.NEXT_PUBLIC_STRIPE_LINK_PRO} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={process.env.NEXT_PUBLIC_STRIPE_LINK_PRO || 'mailto:contato@primetitec.com.br?subject=Upgrade%20Plano%20Pro'}
+                    target="_blank" rel="noopener noreferrer"
+                  >
                     Pro — R$ 47/mês
                   </a>
                 </Button>
                 <Button variant="default" asChild>
-                  <a href={process.env.NEXT_PUBLIC_STRIPE_LINK_CLINICA} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={process.env.NEXT_PUBLIC_STRIPE_LINK_CLINICA || 'mailto:contato@primetitec.com.br?subject=Upgrade%20Plano%20Clínica'}
+                    target="_blank" rel="noopener noreferrer"
+                  >
                     Clínica — R$ 97/mês
                   </a>
                 </Button>
@@ -80,7 +86,10 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
             )}
             {user?.plano === 'PRO' && (
               <Button variant="default" asChild>
-                <a href={process.env.NEXT_PUBLIC_STRIPE_LINK_CLINICA} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={process.env.NEXT_PUBLIC_STRIPE_LINK_CLINICA || 'mailto:contato@primetitec.com.br?subject=Upgrade%20Plano%20Clínica'}
+                  target="_blank" rel="noopener noreferrer"
+                >
                   Upgrade para Clínica — R$ 97/mês
                 </a>
               </Button>

@@ -36,11 +36,19 @@ export function EquipeView({ isClinica, membrosIniciais }: { isClinica: boolean,
             <CardDescription>O gerenciamento de equipe é exclusivo do plano Clínica.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild>
-              <a href={process.env.NEXT_PUBLIC_STRIPE_LINK_CLINICA} target="_blank" rel="noopener noreferrer">
-                Fazer Upgrade para o plano Clínica
-              </a>
-            </Button>
+            {process.env.NEXT_PUBLIC_STRIPE_LINK_CLINICA ? (
+              <Button asChild>
+                <a href={process.env.NEXT_PUBLIC_STRIPE_LINK_CLINICA} target="_blank" rel="noopener noreferrer">
+                  Fazer Upgrade para o plano Clínica
+                </a>
+              </Button>
+            ) : (
+              <Button asChild variant="default">
+                <a href="mailto:contato@primetitec.com.br?subject=Upgrade%20Plano%20Clínica">
+                  Solicitar Upgrade para Clínica
+                </a>
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
