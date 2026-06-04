@@ -100,9 +100,9 @@ export function AtendimentosView({ atendimentos, clientes }: Props) {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-4 sm:p-6 space-y-4">
       <div className="flex justify-end">
-        <Button onClick={abrirNovo}>
+        <Button onClick={abrirNovo} className="w-full sm:w-auto">
           <Plus className="h-4 w-4" />
           Registrar atendimento
         </Button>

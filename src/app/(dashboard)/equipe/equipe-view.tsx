@@ -97,7 +97,7 @@ export function EquipeView({ isClinica, membrosIniciais }: { isClinica: boolean,
   }
 
   return (
-    <div className="p-6 max-w-4xl space-y-6">
+    <div className="p-4 sm:p-6 max-w-4xl space-y-4 sm:space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Convidar Membro</CardTitle>
@@ -106,7 +106,7 @@ export function EquipeView({ isClinica, membrosIniciais }: { isClinica: boolean,
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleConvidar} className="flex gap-4 items-end">
+          <form onSubmit={handleConvidar} className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-end">
             <div className="space-y-1.5 flex-1">
               <Label>Email do usuário</Label>
               <Input
@@ -117,7 +117,7 @@ export function EquipeView({ isClinica, membrosIniciais }: { isClinica: boolean,
                 required
               />
             </div>
-            <Button type="submit" disabled={loading || membros.length >= 3}>
+            <Button type="submit" disabled={loading || membros.length >= 3} className="w-full sm:w-auto">
               <UserPlus className="h-4 w-4 mr-2" />
               {loading ? 'Adicionando...' : 'Adicionar'}
             </Button>
@@ -138,12 +138,12 @@ export function EquipeView({ isClinica, membrosIniciais }: { isClinica: boolean,
           ) : (
             <div className="space-y-4">
               {membros.map((m) => (
-                <div key={m.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+                <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 gap-3">
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">{m.membro?.nome || 'Usuário'}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">{m.email}</p>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4 self-end sm:self-auto">
                     <Badge variant={m.status === 'ATIVO' ? 'success' : 'secondary'}>
                       {m.status}
                     </Badge>

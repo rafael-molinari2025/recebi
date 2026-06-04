@@ -22,8 +22,8 @@ export function RelatoriosView() {
   }
 
   return (
-    <div className="p-6 max-w-4xl space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="p-4 sm:p-6 max-w-4xl space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

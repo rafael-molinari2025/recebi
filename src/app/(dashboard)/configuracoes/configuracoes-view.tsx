@@ -146,7 +146,7 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
   }
 
   return (
-    <div className="p-6 max-w-2xl space-y-6">
+    <div className="p-4 sm:p-6 max-w-2xl space-y-4 sm:space-y-6">
       {/* Plano atual */}
       <Card>
         <CardHeader>

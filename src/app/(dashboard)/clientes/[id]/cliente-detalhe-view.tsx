@@ -24,13 +24,13 @@ export function ClienteDetalheView({ cliente, stats }: Props) {
   const router = useRouter()
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl">
-      <div className="flex items-center justify-between mb-2">
-        <Button variant="ghost" size="sm" onClick={() => router.push('/clientes')}>
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-4xl">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+        <Button variant="ghost" size="sm" className="self-start" onClick={() => router.push('/clientes')}>
           <ArrowLeft className="h-4 w-4" />
           Voltar
         </Button>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={() => {
             const url = `${window.location.origin}/portal/${cliente.id}`
             const portalPath = cliente.portalToken ? `/portal/${cliente.portalToken}` : null
@@ -53,15 +53,15 @@ export function ClienteDetalheView({ cliente, stats }: Props) {
 
       {/* Info do cliente */}
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg">
+                <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg shrink-0">
                   {cliente.nome.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">{cliente.nome}</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">{cliente.nome}</h2>
                   <p className="text-sm text-gray-500">{getTipoAtendimentoLabel(cliente.tipoAtendimento)}</p>
                 </div>
               </div>

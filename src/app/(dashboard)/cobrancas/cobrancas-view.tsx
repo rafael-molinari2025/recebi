@@ -108,15 +108,15 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
   }
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="relative">
+    <div className="p-4 sm:p-6 space-y-4">
+      <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+        <div className="relative w-full sm:w-auto">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input className="pl-8 w-44" placeholder="Buscar cliente..." value={busca} onChange={(e) => setBusca(e.target.value)} />
+          <Input className="pl-8 w-full sm:w-44" placeholder="Buscar cliente..." value={busca} onChange={(e) => setBusca(e.target.value)} />
         </div>
-        <Filter className="h-4 w-4 text-gray-400" />
+        <Filter className="h-4 w-4 text-gray-400 hidden sm:block" />
         <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-44"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="TODOS">Todos</SelectItem>
             <SelectItem value="PENDENTE">Pendente</SelectItem>
@@ -127,9 +127,9 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
           </SelectContent>
         </Select>
         <span className="text-sm text-gray-500">{filtradas.length} cobranças</span>
-        <Button variant="outline" size="sm" className="ml-auto" onClick={() => window.open('/api/exportar?tipo=cobrancas', '_blank')}>
+        <Button variant="outline" size="sm" className="sm:ml-auto w-full sm:w-auto" onClick={() => window.open('/api/exportar?tipo=cobrancas', '_blank')}>
           <Download className="h-4 w-4" />
-          Exportar CSV
+          <span className="sm:inline">Exportar CSV</span>
         </Button>
       </div>
 
