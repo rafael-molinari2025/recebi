@@ -7,20 +7,31 @@ export default async function ConfiguracoesPage() {
   const user = authUser ? await getPrismaUser(authUser.id) : null
 
   const userData = user ? {
-    ...user,
+    id: user.id,
+    supabaseId: user.supabaseId,
+    nome: user.nome,
+    email: user.email,
+    telefone: user.telefone ?? undefined,
+    profissao: user.profissao ?? undefined,
+    empresa: user.empresa ?? undefined,
+    cnpj: user.cnpj ?? undefined,
+    plano: user.plano,
     createdAt: user.createdAt.toISOString(),
-    updatedAt: user.updatedAt.toISOString(),
   } : null
 
   const integracoes = {
     asaas: !!process.env.ASAAS_API_KEY,
-    whatsapp: !!(process.env.ZAPI_INSTANCE_ID && process.env.ZAPI_TOKEN),
+    whatsapp: !!(
+      process.env.EVOLUTION_API_URL &&
+      process.env.EVOLUTION_API_KEY &&
+      process.env.EVOLUTION_INSTANCE
+    ),
   }
 
   return (
     <div>
       <Header title="Configurações" subtitle="Gerencie sua conta e preferências" />
-      <ConfiguracoesView user={userData as any} integracoes={integracoes} />
+      <ConfiguracoesView user={userData} integracoes={integracoes} />
     </div>
   )
 }
