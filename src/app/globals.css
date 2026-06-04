@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Tailwind v4: dark: variants respondem à classe .dark (next-themes), não ao media query do SO */
+@custom-variant dark (&:where(.dark, .dark *));
+
 * {
   box-sizing: border-box;
 }
