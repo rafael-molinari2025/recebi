@@ -138,10 +138,10 @@ export function EquipeView({ isClinica, membrosIniciais }: { isClinica: boolean,
           ) : (
             <div className="space-y-4">
               {membros.map((m) => (
-                <div key={m.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <div key={m.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
                   <div>
-                    <p className="font-medium text-gray-900">{m.membro?.nome || 'Usuário'}</p>
-                    <p className="text-sm text-gray-500">{m.email}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{m.membro?.nome || 'Usuário'}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{m.email}</p>
                   </div>
                   <div className="flex items-center gap-4">
                     <Badge variant={m.status === 'ATIVO' ? 'success' : 'secondary'}>

@@ -56,7 +56,7 @@ export function AgendaView({ atendimentos }: Props) {
         <Button variant="ghost" size="icon" onClick={() => setMesAtual(subMonths(mesAtual, 1))}>
           <ChevronLeft className="h-5 w-5" />
         </Button>
-        <h2 className="text-lg font-semibold text-gray-900 capitalize">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white capitalize">
           {format(mesAtual, 'MMMM yyyy', { locale: ptBR })}
         </h2>
         <Button variant="ghost" size="icon" onClick={() => setMesAtual(addMonths(mesAtual, 1))}>
@@ -65,11 +65,11 @@ export function AgendaView({ atendimentos }: Props) {
       </div>
 
       {/* Grid do calendário */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {/* Cabeçalho dos dias */}
-        <div className="grid grid-cols-7 border-b border-gray-200">
+        <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700">
           {DIAS.map((d) => (
-            <div key={d} className="py-2 text-center text-xs font-medium text-gray-500">{d}</div>
+            <div key={d} className="py-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400">{d}</div>
           ))}
         </div>
 
@@ -84,21 +84,21 @@ export function AgendaView({ atendimentos }: Props) {
               <div
                 key={i}
                 onClick={() => setDiaSelecionado(isSameDay(d, diaSelecionado ?? new Date(0)) ? null : d)}
-                className={`min-h-[72px] p-1.5 border-b border-r border-gray-100 cursor-pointer transition-colors
-                  ${selecionado ? 'bg-indigo-50' : 'hover:bg-gray-50'}
+                className={`min-h-[60px] sm:min-h-[72px] p-1 sm:p-1.5 border-b border-r border-gray-100 dark:border-gray-800 cursor-pointer transition-colors
+                  ${selecionado ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}
                   ${!doMes ? 'opacity-40' : ''}`}
               >
-                <div className={`text-xs font-medium mb-1 flex items-center justify-center w-6 h-6 rounded-full
-                  ${hoje ? 'bg-indigo-600 text-white' : 'text-gray-700'}`}>
+                <div className={`text-xs font-medium mb-1 flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full
+                  ${hoje ? 'bg-indigo-600 text-white' : 'text-gray-700 dark:text-gray-300'}`}>
                   {format(d, 'd')}
                 </div>
                 {ats.slice(0, 2).map((a) => (
-                  <div key={a.id} className="text-[10px] bg-indigo-100 text-indigo-700 rounded px-1 py-0.5 truncate mb-0.5">
+                  <div key={a.id} className="text-[10px] bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded px-1 py-0.5 truncate mb-0.5">
                     {a.clienteNome}
                   </div>
                 ))}
                 {ats.length > 2 && (
-                  <div className="text-[10px] text-gray-400">+{ats.length - 2} mais</div>
+                  <div className="text-[10px] text-gray-400 dark:text-gray-500">+{ats.length - 2} mais</div>
                 )}
               </div>
             )
@@ -108,25 +108,25 @@ export function AgendaView({ atendimentos }: Props) {
 
       {/* Painel do dia selecionado */}
       {diaSelecionado && (
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="font-semibold text-gray-900 mb-3 capitalize">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-3 capitalize">
             {format(diaSelecionado, "EEEE, dd 'de' MMMM", { locale: ptBR })}
           </h3>
           {atendimentosSelecionados.length === 0 ? (
-            <p className="text-sm text-gray-400">Nenhum atendimento neste dia.</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">Nenhum atendimento neste dia.</p>
           ) : (
             <div className="space-y-2">
               {atendimentosSelecionados.map((a) => (
                 <div
                   key={a.id}
-                  className="flex items-center justify-between p-3 bg-indigo-50 rounded-lg cursor-pointer hover:bg-indigo-100 transition-colors"
+                  className="flex items-center justify-between p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
                   onClick={() => router.push(`/clientes/${a.clienteId}`)}
                 >
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{a.clienteNome}</p>
-                    {a.descricao && <p className="text-xs text-gray-500">{a.descricao}</p>}
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{a.clienteNome}</p>
+                    {a.descricao && <p className="text-xs text-gray-500 dark:text-gray-400">{a.descricao}</p>}
                   </div>
-                  <span className="text-sm font-semibold text-indigo-600">{formatCurrency(a.valor)}</span>
+                  <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">{formatCurrency(a.valor)}</span>
                 </div>
               ))}
             </div>

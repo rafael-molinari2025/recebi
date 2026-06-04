@@ -6,7 +6,7 @@ import {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -43,11 +43,11 @@ export default function LandingPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 animate-pulse" />
             Mais de 500 profissionais já usam
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
             Chega de perder dinheiro<br />
             <span className="text-indigo-600">com inadimplência</span>
           </h1>
-          <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-base sm:text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
             O Recebi automatiza suas cobranças, envia lembretes pelo WhatsApp e gera recibos em segundos.
             Feito para psicólogos, personal trainers, nutricionistas e profissionais liberais.
           </p>

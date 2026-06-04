@@ -143,19 +143,19 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
           <CardDescription>Configure os serviços externos utilizados pelo Recebi</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
             <div>
-              <p className="text-sm font-medium text-gray-900">Asaas (Pagamentos)</p>
-              <p className="text-xs text-gray-500">PIX, boleto e cartão de crédito</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">Asaas (Pagamentos)</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">PIX, boleto e cartão de crédito</p>
             </div>
             <Badge variant={integracoes.asaas ? 'success' : 'secondary'}>
               {integracoes.asaas ? 'Configurado' : 'Pendente'}
             </Badge>
           </div>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
             <div>
-              <p className="text-sm font-medium text-gray-900">WhatsApp (Evolution API)</p>
-              <p className="text-xs text-gray-500">Lembretes automáticos</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">WhatsApp (Evolution API)</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Lembretes automáticos</p>
             </div>
             <Badge variant={integracoes.whatsapp ? 'success' : 'secondary'}>
               {integracoes.whatsapp ? 'Configurado' : 'Pendente'}

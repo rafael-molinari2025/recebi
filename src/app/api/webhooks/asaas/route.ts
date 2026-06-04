@@ -1,22 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { enviarConfirmacaoPagamento } from '@/lib/whatsapp'
 
+const payloadSchema = z.object({
+  event: z.string(),
+  payment: z.object({
+    id: z.string(),
+    externalReference: z.string().nullable().optional(),
+    value: z.number().optional(),
+  }).optional(),
+})
+
 export async function POST(req: NextRequest) {
   // ASAAS_WEBHOOK_TOKEN é obrigatório — configure-o no painel Asaas e no Vercel
-  const cronSecret = process.env.ASAAS_WEBHOOK_TOKEN
-  if (!cronSecret) {
+  const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN
+  if (!webhookToken) {
     return NextResponse.json({ error: 'Webhook não configurado' }, { status: 503 })
   }
 
   const token = req.headers.get('asaas-access-token')
-  if (token !== cronSecret) {
+  if (token !== webhookToken) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
   }
 
+  const raw = await req.json()
+  const parsed = payloadSchema.safeParse(raw)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Payload inválido' }, { status: 400 })
+  }
 
-  const body = await req.json()
-  const { event, payment } = body
+  const { event, payment } = parsed.data
 
   if (!payment?.externalReference) {
     return NextResponse.json({ ok: true })

@@ -2,13 +2,17 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { addDays } from 'date-fns'
 
-// Simulação de Job de Cron (Pode ser chamado via Vercel Cron ou Trigger externo)
-// Rota segura com Header Authorization Bearer CRON_SECRET no mundo real
 export async function GET(req: Request) {
-  try {
-    const authHeader = req.headers.get('authorization')
-    // Em produção, verificar se authHeader === `Bearer ${process.env.CRON_SECRET}`
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret) {
+    return NextResponse.json({ error: 'CRON_SECRET não configurado' }, { status: 500 })
+  }
+  const authHeader = req.headers.get('authorization')
+  if (authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
 
+  try {
     const agora = new Date()
     const tresDiasFrente = addDays(agora, 3)
     const umDiaFrente = addDays(agora, 1)
