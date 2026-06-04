@@ -31,7 +31,16 @@ export async function PUT(req: NextRequest) {
   const auth = await getAuthUser()
   if (!auth) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  const parsed = atualizarUsuarioSchema.safeParse(await req.json())
+  const raw = await req.json()
+
+  // Rejeitar explicitamente campos protegidos mesmo que o schema os ignore
+  const camposProibidos = ['plano', 'supabaseId', 'email', 'id', 'asaasId', 'createdAt']
+  const tentativa = camposProibidos.filter((c) => c in raw)
+  if (tentativa.length > 0) {
+    return NextResponse.json({ error: `Campos não permitidos: ${tentativa.join(', ')}` }, { status: 403 })
+  }
+
+  const parsed = atualizarUsuarioSchema.safeParse(raw)
   if (!parsed.success) {
     return NextResponse.json({ message: 'Dados inválidos.', errors: parsed.error.flatten() }, { status: 400 })
   }

@@ -8,7 +8,13 @@ const LIMITES = { STARTER: 5, PRO: 50, CLINICA: 200 }
 
 const clienteSchema = z.object({
   nome: z.string().min(2).max(100),
-  cpfCnpj: z.string().max(18).optional().or(z.literal('')),
+  cpfCnpj: z.string()
+    .transform((v) => v.replace(/\D/g, ''))
+    .refine((v) => v.length === 0 || v.length === 11 || v.length === 14, {
+      message: 'CPF deve ter 11 dígitos ou CNPJ 14 dígitos',
+    })
+    .optional()
+    .or(z.literal('')),
   telefone: z.string().min(8).max(20),
   email: z.string().email().optional().or(z.literal('')),
   tipoAtendimento: z.enum(['SESSAO_AVULSA', 'PACOTE_MENSAL', 'PLANO_FIXO']),
@@ -68,7 +74,6 @@ export async function POST(req: NextRequest) {
     })
     return NextResponse.json({ ...cliente, valorHonorario: Number(cliente.valorHonorario) }, { status: 201 })
   } catch (err) {
-    console.error(err)
     console.error('[POST /api/clientes]', err)
     return NextResponse.json({ message: 'Erro interno ao criar cliente.' }, { status: 500 })
   }

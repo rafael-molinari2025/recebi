@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getAuthUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+
+const tipoSchema = z.enum(['clientes', 'atendimentos', 'cobrancas'])
 
 function toCSV(rows: string[][]): string {
   return rows.map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n')
@@ -21,7 +24,12 @@ export async function GET(req: NextRequest) {
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  const tipo = req.nextUrl.searchParams.get('tipo') ?? 'clientes'
+  const tipoParam = req.nextUrl.searchParams.get('tipo') ?? 'clientes'
+  const tipoValidado = tipoSchema.safeParse(tipoParam)
+  if (!tipoValidado.success) {
+    return NextResponse.json({ error: 'Tipo inválido. Use: clientes, atendimentos ou cobrancas' }, { status: 400 })
+  }
+  const tipo = tipoValidado.data
 
   let csv = ''
   let filename = ''
@@ -50,7 +58,7 @@ export async function GET(req: NextRequest) {
     const header = ['Data', 'Cliente', 'Descrição', 'Notas privadas', 'Valor', 'Cobrança gerada']
     const rows = atendimentos.map((a) => [
       formatData(a.data), a.cliente.nome, a.descricao ?? '',
-      (a as any).notas ?? '',
+      a.notas ?? '',
       formatValor(Number(a.valor)), a.gerarCobranca ? 'Sim' : 'Não',
     ])
     csv = toCSV([header, ...rows])
@@ -72,8 +80,6 @@ export async function GET(req: NextRequest) {
     ])
     csv = toCSV([header, ...rows])
     filename = 'cobrancas.csv'
-  } else {
-    return NextResponse.json({ error: 'Tipo inválido. Use: clientes, atendimentos ou cobrancas' }, { status: 400 })
   }
 
   return new NextResponse('﻿' + csv, {
