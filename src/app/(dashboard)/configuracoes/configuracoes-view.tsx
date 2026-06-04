@@ -40,11 +40,18 @@ function WhatsAppCard() {
     setLoadingQr(true)
     setQrcode(null)
     try {
+      // Desconecta primeiro para forçar novo QR Code
+      await fetch('/api/whatsapp/disconnect', { method: 'POST' })
+      await new Promise(r => setTimeout(r, 1500))
+
       const res = await fetch('/api/whatsapp/qrcode')
       const data = await res.json()
-      if (data.connected) { setStatus('connected'); return }
-      if (data.qrcode) setQrcode(data.qrcode)
-      else toast({ title: 'Erro ao gerar QR Code', variant: 'destructive' })
+      if (data.qrcode) {
+        setQrcode(data.qrcode)
+        setStatus('disconnected')
+      } else {
+        toast({ title: 'Erro ao gerar QR Code. Tente novamente.', variant: 'destructive' })
+      }
     } catch {
       toast({ title: 'Erro ao buscar QR Code', variant: 'destructive' })
     } finally { setLoadingQr(false) }
