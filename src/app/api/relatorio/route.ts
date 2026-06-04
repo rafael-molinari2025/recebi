@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getAuthUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns'
+import { startOfMonth, endOfMonth, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 function formatBRL(v: number) {
@@ -12,12 +13,27 @@ function formatData(d: Date | string) {
   return format(new Date(d), 'dd/MM/yyyy', { locale: ptBR })
 }
 
+function esc(s: string | null | undefined): string {
+  if (!s) return ''
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
+const mesSchema = z.string().regex(/^\d{4}-\d{2}$/, 'Formato inválido — use YYYY-MM')
+
 // GET /api/relatorio?mes=YYYY-MM (default: mês atual)
 export async function GET(req: NextRequest) {
   const user = await getAuthUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   const mesParam = req.nextUrl.searchParams.get('mes')
+
+  if (mesParam) {
+    const mesValidado = mesSchema.safeParse(mesParam)
+    if (!mesValidado.success) {
+      return NextResponse.json({ error: 'Parâmetro mes inválido. Use YYYY-MM.' }, { status: 400 })
+    }
+  }
+
   const referencia = mesParam ? new Date(`${mesParam}-01`) : new Date()
   const inicio = startOfMonth(referencia)
   const fim = endOfMonth(referencia)
@@ -77,7 +93,7 @@ export async function GET(req: NextRequest) {
     </div>
     <div style="text-align:right">
       <div style="font-size:15px;font-weight:bold;text-transform:capitalize">${mesLabel}</div>
-      <div style="color:#999;font-size:11px">${user.nome}${user.empresa ? ' — ' + user.empresa : ''}</div>
+      <div style="color:#999;font-size:11px">${esc(user.nome)}${user.empresa ? ' — ' + esc(user.empresa) : ''}</div>
     </div>
   </div>
 
@@ -113,7 +129,7 @@ export async function GET(req: NextRequest) {
     <tbody>
       ${cobrancas.map((c) => `
       <tr>
-        <td>${c.cliente.nome}</td>
+        <td>${esc(c.cliente.nome)}</td>
         <td>${formatData(c.vencimento)}</td>
         <td style="color:${statusColor[c.status] ?? '#000'};font-weight:bold">${statusLabel[c.status] ?? c.status}</td>
         <td style="text-align:right">${formatBRL(Number(c.valor))}</td>
@@ -129,5 +145,12 @@ export async function GET(req: NextRequest) {
 </body>
 </html>`
 
-  return new NextResponse(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
+  const securityHeaders = {
+    'Content-Type': 'text/html; charset=utf-8',
+    'X-Frame-Options': 'DENY',
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:",
+  }
+  return new NextResponse(html, { headers: securityHeaders })
 }
