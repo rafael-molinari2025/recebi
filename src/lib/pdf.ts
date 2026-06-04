@@ -9,6 +9,9 @@ interface ReciboData {
   numero: string
   profissionalNome: string
   profissionalProfissao?: string
+  profissionalEmpresa?: string
+  profissionalCnpj?: string
+  profissionalTelefone?: string
   clienteNome: string
   valor: number
   descricao?: string
@@ -63,9 +66,11 @@ export function gerarHtmlRecibo(data: ReciboData): string {
 
   <div class="grid">
     <div class="section">
-      <div class="label">Profissional</div>
-      <div class="value">${esc(data.profissionalNome)}</div>
+      <div class="label">Prestador de Serviço</div>
+      ${data.profissionalEmpresa ? `<div class="value">${esc(data.profissionalEmpresa)}</div><div style="font-size:13px;color:#666">${esc(data.profissionalNome)}</div>` : `<div class="value">${esc(data.profissionalNome)}</div>`}
       ${data.profissionalProfissao ? `<div style="font-size:13px;color:#666">${esc(data.profissionalProfissao)}</div>` : ''}
+      ${data.profissionalCnpj ? `<div style="font-size:12px;color:#999;margin-top:2px">CNPJ: ${esc(data.profissionalCnpj)}</div>` : ''}
+      ${data.profissionalTelefone ? `<div style="font-size:12px;color:#999">Tel: ${esc(data.profissionalTelefone)}</div>` : ''}
     </div>
     <div class="section">
       <div class="label">Cliente</div>

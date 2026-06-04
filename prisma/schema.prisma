@@ -15,6 +15,7 @@ model User {
   telefone      String?
   profissao     String?
   empresa       String?
+  cnpj          String?   // CNPJ da empresa (disponível nos planos PRO e CLÍNICA)
   asaasId       String?   // ID do profissional no Asaas
   plano         Plano     @default(STARTER)
   createdAt     DateTime  @default(now())

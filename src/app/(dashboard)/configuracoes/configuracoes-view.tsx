@@ -110,11 +110,14 @@ function WhatsAppCard() {
 export function ConfiguracoesView({ user, integracoes }: { user: User | null; integracoes: Integracoes }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const isPro = user?.plano === 'PRO' || user?.plano === 'CLINICA'
+
   const [form, setForm] = useState({
     nome: user?.nome ?? '',
     telefone: user?.telefone ?? '',
     profissao: user?.profissao ?? '',
     empresa: user?.empresa ?? '',
+    cnpj: user?.cnpj ?? '',
   })
 
   const planoInfo = {
@@ -230,6 +233,17 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
                 onChange={(e) => setForm({ ...form, telefone: e.target.value })}
               />
             </div>
+            {isPro && (
+              <div className="space-y-1.5">
+                <Label>CNPJ <span className="text-xs text-indigo-600 font-normal ml-1">PRO / Clínica</span></Label>
+                <Input
+                  placeholder="00.000.000/0001-00"
+                  value={form.cnpj}
+                  onChange={(e) => setForm({ ...form, cnpj: e.target.value })}
+                />
+                <p className="text-xs text-gray-400">Aparece nos recibos junto ao nome da empresa.</p>
+              </div>
+            )}
             <Button type="submit" disabled={loading}>
               {loading ? 'Salvando...' : 'Salvar alterações'}
             </Button>

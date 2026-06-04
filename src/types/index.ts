@@ -10,6 +10,7 @@ export interface User {
   telefone?: string
   profissao?: string
   empresa?: string
+  cnpj?: string
   plano: Plano
   createdAt: string
 }
