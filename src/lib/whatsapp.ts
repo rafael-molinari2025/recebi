@@ -1,18 +1,18 @@
 import axios from 'axios'
 import { formatCurrency, formatDate } from './utils'
 
-// Z-API: https://z-api.io
+// Evolution API (self-hosted — gratuito via Oracle Cloud Free Tier)
 // Variáveis necessárias no Vercel:
-//   ZAPI_INSTANCE_ID  — ID da instância
-//   ZAPI_TOKEN        — Token da instância
-//   ZAPI_CLIENT_TOKEN — Security token da conta (Client-Token)
+//   EVOLUTION_API_URL      — URL da sua instância (ex: http://IP_ORACLE:8080)
+//   EVOLUTION_API_KEY      — Chave definida na variável AUTHENTICATION_API_KEY do Docker
+//   EVOLUTION_INSTANCE     — Nome da instância criada (ex: recebi)
 
-const ZAPI_INSTANCE_ID = process.env.ZAPI_INSTANCE_ID
-const ZAPI_TOKEN = process.env.ZAPI_TOKEN
-const ZAPI_CLIENT_TOKEN = process.env.ZAPI_CLIENT_TOKEN
+const EVOLUTION_URL      = process.env.EVOLUTION_API_URL
+const EVOLUTION_API_KEY  = process.env.EVOLUTION_API_KEY
+const EVOLUTION_INSTANCE = process.env.EVOLUTION_INSTANCE
 
 export function whatsappConfigurado(): boolean {
-  return !!(ZAPI_INSTANCE_ID && ZAPI_TOKEN)
+  return !!(EVOLUTION_URL && EVOLUTION_API_KEY && EVOLUTION_INSTANCE)
 }
 
 async function enviarMensagem(numero: string, mensagem: string): Promise<void> {
@@ -20,12 +20,12 @@ async function enviarMensagem(numero: string, mensagem: string): Promise<void> {
   const numeroFormatado = telefone.startsWith('55') ? telefone : `55${telefone}`
 
   await axios.post(
-    `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`,
-    { phone: numeroFormatado, message: mensagem },
+    `${EVOLUTION_URL}/message/sendText/${EVOLUTION_INSTANCE}`,
+    { number: numeroFormatado, text: mensagem },
     {
       headers: {
         'Content-Type': 'application/json',
-        ...(ZAPI_CLIENT_TOKEN ? { 'Client-Token': ZAPI_CLIENT_TOKEN } : {}),
+        'apikey': EVOLUTION_API_KEY!,
       },
     }
   )
