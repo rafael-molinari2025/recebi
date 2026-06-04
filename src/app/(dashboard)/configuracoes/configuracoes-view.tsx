@@ -163,7 +163,7 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
               <div className="flex gap-2">
                 <Button variant="outline" asChild>
                   <a
-                    href={process.env.NEXT_PUBLIC_STRIPE_LINK_PRO || 'mailto:contato@primetitec.com.br?subject=Upgrade%20Plano%20Pro'}
+                    href="https://buy.stripe.com/00w6oIa6Nd9X7L47mx9oc01"
                     target="_blank" rel="noopener noreferrer"
                   >
                     Pro — R$ 47/mês
@@ -171,7 +171,7 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
                 </Button>
                 <Button variant="default" asChild>
                   <a
-                    href={process.env.NEXT_PUBLIC_STRIPE_LINK_CLINICA || 'mailto:contato@primetitec.com.br?subject=Upgrade%20Plano%20Clínica'}
+                    href="https://buy.stripe.com/cNi8wQ6UBgm95CWfT39oc00"
                     target="_blank" rel="noopener noreferrer"
                   >
                     Clínica — R$ 97/mês
@@ -182,7 +182,7 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
             {user?.plano === 'PRO' && (
               <Button variant="default" asChild>
                 <a
-                  href={process.env.NEXT_PUBLIC_STRIPE_LINK_CLINICA || 'mailto:contato@primetitec.com.br?subject=Upgrade%20Plano%20Clínica'}
+                  href="https://buy.stripe.com/cNi8wQ6UBgm95CWfT39oc00"
                   target="_blank" rel="noopener noreferrer"
                 >
                   Upgrade para Clínica — R$ 97/mês
