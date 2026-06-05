@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, Calendar, CreditCard, Settings, LogOut, Wallet, CalendarDays, FileText, UsersRound, Menu, X, Activity } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, CreditCard, Settings, LogOut, Wallet, CalendarDays, FileText, UsersRound, Menu, X, Activity, BarChart2, UserCog } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -22,6 +22,8 @@ const navItems = [
 
 const adminNavItems = [
   { href: '/monitor', label: 'Monitor', icon: Activity },
+  { href: '/admin/analitico', label: 'Analítico', icon: BarChart2 },
+  { href: '/admin/usuarios', label: 'Usuários', icon: UserCog },
 ]
 
 export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {

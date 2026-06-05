@@ -156,6 +156,17 @@ enum StatusCobranca {
   ESTORNADO
 }
 
+model PageView {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  pagina    String
+  sessionId String?
+
+  @@index([createdAt])
+  @@index([pagina])
+  @@map("page_views")
+}
+
 model MonitorLog {
   id            String   @id @default(cuid())
   createdAt     DateTime @default(now())

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Wallet } from 'lucide-react'
@@ -14,6 +14,14 @@ export default function CadastroPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({ nome: '', email: '', senha: '', profissao: '' })
+
+  useEffect(() => {
+    try {
+      let sid = localStorage.getItem('_recebi_sid')
+      if (!sid) { sid = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2); localStorage.setItem('_recebi_sid', sid) }
+      fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pagina: '/cadastro', sessionId: sid }) }).catch(() => {})
+    } catch { /* noop */ }
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
