@@ -155,3 +155,19 @@ enum StatusCobranca {
   CANCELADO
   ESTORNADO
 }
+
+model MonitorLog {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  status        String   // OK | DEGRADADO | FALHA
+  dbOk          Boolean
+  dbLatencyMs   Int?
+  asaasOk       Boolean?
+  whatsappOk    Boolean?
+  corrigidas    Int      @default(0) // cobranças auto-corrigidas nesta execução
+  alertaEnviado Boolean  @default(false)
+  detalhes      String?  // JSON com mensagens de erro por componente
+
+  @@index([createdAt])
+  @@map("monitor_logs")
+}

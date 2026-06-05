@@ -66,6 +66,12 @@ _${params.profissionalNome}_`
   await enviarMensagem(params.telefone, mensagem)
 }
 
+export async function enviarAlertaAdmin(mensagem: string): Promise<void> {
+  const adminPhone = process.env.ADMIN_PHONE
+  if (!adminPhone || !whatsappConfigurado()) return
+  await enviarMensagem(adminPhone, mensagem)
+}
+
 export async function enviarConfirmacaoPagamento(params: {
   nome: string
   telefone: string
