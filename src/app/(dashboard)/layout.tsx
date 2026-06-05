@@ -7,9 +7,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (!user) redirect('/login')
 
+  const adminEmail = process.env.ADMIN_EMAIL
+  const isAdmin = !!(adminEmail && user.email === adminEmail)
+
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 overflow-x-hidden">
-      <Sidebar />
+      <Sidebar isAdmin={isAdmin} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <main className="flex-1 overflow-y-auto">
           {children}

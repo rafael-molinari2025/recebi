@@ -18,10 +18,13 @@ const navItems = [
   { href: '/relatorios', label: 'Relatórios', icon: FileText },
   { href: '/equipe', label: 'Equipe', icon: UsersRound },
   { href: '/configuracoes', label: 'Configurações', icon: Settings },
+]
+
+const adminNavItems = [
   { href: '/monitor', label: 'Monitor', icon: Activity },
 ]
 
-export function Sidebar() {
+export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
@@ -74,22 +77,44 @@ export function Sidebar() {
         </div>
 
         <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
-        {navItems.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-              pathname.startsWith(href)
-                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-gray-100'
-            )}
-          >
-            <Icon className="h-5 w-5 shrink-0" />
-            {label}
-          </Link>
-        ))}
-      </nav>
+          {navItems.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                pathname.startsWith(href)
+                  ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-gray-100'
+              )}
+            >
+              <Icon className="h-5 w-5 shrink-0" />
+              {label}
+            </Link>
+          ))}
+          {isAdmin && (
+            <>
+              <div className="pt-2 pb-1">
+                <p className="px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-600">Admin</p>
+              </div>
+              {adminNavItems.map(({ href, label, icon: Icon }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                    pathname.startsWith(href)
+                      ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-gray-100'
+                  )}
+                >
+                  <Icon className="h-5 w-5 shrink-0" />
+                  {label}
+                </Link>
+              ))}
+            </>
+          )}
+        </nav>
 
       <div className="border-t border-gray-200 dark:border-gray-800 p-4">
         <button
