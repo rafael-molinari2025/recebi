@@ -17,7 +17,7 @@ export default async function MonitorPage() {
     <div>
       <Header
         title="Monitor do Sistema"
-        subtitle="Verificações automáticas a cada 5 minutos — 24 horas por dia"
+        subtitle="Verificação automática diária — histórico das últimas 24 horas"
       />
       <MonitorView />
     </div>
