@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { enviarLembreteVencimento, enviarAvisoAtraso } from '@/lib/whatsapp'
 import { diasAtraso } from '@/lib/utils'
-import { addDays } from 'date-fns'
+import { addDays, startOfDay } from 'date-fns'
 
 // Rota para ser chamada por um cron job (ex: Vercel Cron, Railway Cron)
 export async function POST(req: NextRequest) {
@@ -17,8 +17,8 @@ export async function POST(req: NextRequest) {
   }
 
   const agora = new Date()
-  // BUG-04: lembrete apenas para D+1 a D+3, excluindo quem vence hoje
-  const amanha = addDays(agora, 1)
+  // Começa do início do dia para cobrir vencimentos de hoje até D+3
+  const hoje = startOfDay(agora)
   const em3dias = addDays(agora, 3)
 
   const pendentes3d = await prisma.cobranca.findMany({
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       status: 'PENDENTE',
       lembreteEnviado3d: false,
       vencimento: {
-        gte: amanha,
+        gte: hoje,
         lte: em3dias,
       },
     },

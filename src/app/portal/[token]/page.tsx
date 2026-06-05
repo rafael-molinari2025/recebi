@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { addYears } from 'date-fns'
 import { prisma } from '@/lib/prisma'
 import { formatCurrency, formatDate, getStatusLabel } from '@/lib/utils'
 import { SolicitarAgendamento } from '@/components/portal/solicitar-agendamento'
@@ -14,7 +15,7 @@ export default async function PortalClientePage({
     include: {
       user: { select: { nome: true, profissao: true, empresa: true } },
       cobrancas: {
-        where: { status: { not: 'CANCELADO' } },
+        where: { status: { notIn: ['CANCELADO', 'ESTORNADO'] } },
         orderBy: { vencimento: 'desc' },
         take: 20,
       },
@@ -22,6 +23,24 @@ export default async function PortalClientePage({
   })
 
   if (!cliente) return notFound()
+
+  // Token expirado — registro antigo sem expiresAt é tratado como válido na primeira visita
+  const now = new Date()
+  if (cliente.portalTokenExpiresAt && cliente.portalTokenExpiresAt < now) {
+    return (
+      <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: 600, margin: '40px auto', padding: 32, textAlign: 'center' }}>
+        <div style={{ fontSize: 28, fontWeight: 'bold', color: '#6366f1', marginBottom: 16 }}>re<span style={{ color: '#1a1a1a' }}>cebi</span></div>
+        <p style={{ fontSize: 16, color: '#333' }}>Este link expirou por inatividade.</p>
+        <p style={{ fontSize: 13, color: '#888', marginTop: 8 }}>Entre em contato com seu profissional para receber um novo link de acesso.</p>
+      </div>
+    )
+  }
+
+  // Renovar expiração automaticamente a cada acesso (1 ano a partir de agora)
+  await prisma.cliente.update({
+    where: { id: cliente.id },
+    data: { portalTokenExpiresAt: addYears(now, 1) },
+  })
 
   const profissional = cliente.user.empresa ?? cliente.user.nome
 

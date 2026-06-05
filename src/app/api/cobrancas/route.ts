@@ -65,8 +65,10 @@ export async function POST(req: NextRequest) {
     asaasId = cobrancaAsaas.id
     linkPagamento = cobrancaAsaas.invoiceUrl
     pixCopiaECola = cobrancaAsaas.pixCopiaECola
-  } catch {
-    // Asaas não configurado
+  } catch (err) {
+    if (process.env.ASAAS_API_KEY) {
+      console.error('[POST /api/cobrancas] Falha ao criar cobrança no Asaas:', err)
+    }
   }
 
   try {
@@ -84,7 +86,6 @@ export async function POST(req: NextRequest) {
     })
     return NextResponse.json({ ...cobranca, valor: Number(cobranca.valor) }, { status: 201 })
   } catch (err) {
-    console.error(err)
     console.error('[POST /api/cobrancas]', err)
     return NextResponse.json({ message: 'Erro interno ao criar cobrança.' }, { status: 500 })
   }

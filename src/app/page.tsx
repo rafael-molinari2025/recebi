@@ -1,10 +1,64 @@
 import Link from 'next/link'
 import {
   CheckCircle, Wallet, MessageSquare, TrendingDown,
-  Calendar, FileText, Star, ArrowRight, Menu
+  Calendar, FileText, ArrowRight, Users, CreditCard, TrendingUp, Star
 } from 'lucide-react'
+import { prisma } from '@/lib/prisma'
+import { formatCurrency, diasAtraso, formatDate } from '@/lib/utils'
 
-export default function LandingPage() {
+async function getStats() {
+  try {
+    const [
+      totalProfissionais,
+      totalClientes,
+      totalPago,
+      totalPendente,
+      totalAtrasado,
+      clientesAtrasados,
+      proximosVencimentos
+    ] = await Promise.all([
+      prisma.user.count(),
+      prisma.cliente.count({ where: { ativo: true } }),
+      prisma.cobranca.aggregate({ where: { status: 'PAGO' }, _sum: { valor: true } }),
+      prisma.cobranca.aggregate({ where: { status: 'PENDENTE' }, _sum: { valor: true } }),
+      prisma.cobranca.aggregate({ where: { status: 'ATRASADO' }, _sum: { valor: true } }),
+      prisma.cobranca.findMany({
+        where: { status: 'ATRASADO' },
+        include: { cliente: { select: { nome: true } } },
+        orderBy: { vencimento: 'asc' },
+        take: 2,
+      }),
+      prisma.cobranca.findMany({
+        where: { status: 'PENDENTE' },
+        include: { cliente: { select: { nome: true } } },
+        orderBy: { vencimento: 'asc' },
+        take: 2,
+      }),
+    ])
+    return {
+      profissionais: totalProfissionais,
+      clientes: totalClientes,
+      processado: Number(totalPago._sum.valor ?? 0),
+      aReceber: Number(totalPendente._sum.valor ?? 0),
+      emAtraso: Number(totalAtrasado._sum.valor ?? 0),
+      clientesAtrasados: clientesAtrasados.map(c => ({
+        nome: c.cliente?.nome || 'Cliente',
+        dias: c.vencimento ? diasAtraso(c.vencimento.toISOString()) : 0
+      })),
+      proximosVencimentos: proximosVencimentos.map(c => ({
+        nome: c.cliente?.nome || 'Cliente',
+        data: c.vencimento ? formatDate(c.vencimento.toISOString()) : ''
+      }))
+    }
+  } catch {
+    return { profissionais: 0, clientes: 0, processado: 0, aReceber: 0, emAtraso: 0, clientesAtrasados: [], proximosVencimentos: [] }
+  }
+}
+
+export default async function LandingPage() {
+  const stats = await getStats()
+  const anoAtual = new Date().getFullYear()
+
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       {/* NAV */}
@@ -41,7 +95,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-4 py-1.5 text-sm font-medium text-indigo-700 mb-6">
             <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 animate-pulse" />
-            Mais de 500 profissionais já usam
+            {stats.profissionais > 0 ? `${stats.profissionais} profissionais já usam` : 'Novo sistema em crescimento'}
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
             Chega de perder dinheiro<br />
@@ -70,15 +124,15 @@ export default function LandingPage() {
               <div className="h-3 w-3 rounded-full bg-red-400" />
               <div className="h-3 w-3 rounded-full bg-yellow-400" />
               <div className="h-3 w-3 rounded-full bg-green-400" />
-              <span className="ml-3 text-xs text-gray-400">recebi-khaki.vercel.app/dashboard</span>
+              <span className="ml-3 text-xs text-gray-400">recebi.com/dashboard</span>
             </div>
             <div className="p-8 bg-gray-50">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 {[
-                  { label: 'A Receber', value: 'R$ 4.200', color: 'text-yellow-600', bg: 'bg-yellow-50' },
-                  { label: 'Recebido', value: 'R$ 8.750', color: 'text-green-600', bg: 'bg-green-50' },
-                  { label: 'Em Atraso', value: 'R$ 320', color: 'text-red-600', bg: 'bg-red-50' },
-                  { label: 'Clientes Ativos', value: '23', color: 'text-indigo-600', bg: 'bg-indigo-50' },
+                  { label: 'A Receber', value: formatCurrency(stats.aReceber), color: 'text-yellow-600', bg: 'bg-yellow-50' },
+                  { label: 'Recebido', value: formatCurrency(stats.processado), color: 'text-green-600', bg: 'bg-green-50' },
+                  { label: 'Em Atraso', value: formatCurrency(stats.emAtraso), color: 'text-red-600', bg: 'bg-red-50' },
+                  { label: 'Clientes Ativos', value: String(stats.clientes), color: 'text-indigo-600', bg: 'bg-indigo-50' },
                 ].map((card) => (
                   <div key={card.label} className="rounded-xl bg-white border border-gray-200 p-4">
                     <p className="text-xs text-gray-500 mb-1">{card.label}</p>
@@ -89,21 +143,25 @@ export default function LandingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="rounded-xl bg-white border border-gray-200 p-4">
                   <p className="text-sm font-semibold text-gray-700 mb-3">Clientes em Atraso</p>
-                  {['Ana Paula — 3 dias', 'João Melo — 7 dias'].map((item) => (
-                    <div key={item} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                      <span className="text-sm text-gray-600">{item}</span>
+                  {stats.clientesAtrasados.length > 0 ? stats.clientesAtrasados.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                      <span className="text-sm text-gray-600">{item.nome} — {item.dias} dias</span>
                       <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Atraso</span>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-sm text-gray-400 py-2">Nenhum cliente em atraso</div>
+                  )}
                 </div>
                 <div className="rounded-xl bg-white border border-gray-200 p-4">
                   <p className="text-sm font-semibold text-gray-700 mb-3">Próximos Vencimentos</p>
-                  {['Maria Souza — 02/06', 'Pedro Lima — 05/06'].map((item) => (
-                    <div key={item} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                      <span className="text-sm text-gray-600">{item}</span>
+                  {stats.proximosVencimentos.length > 0 ? stats.proximosVencimentos.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                      <span className="text-sm text-gray-600">{item.nome} — {item.data}</span>
                       <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">Pendente</span>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-sm text-gray-400 py-2">Nenhum vencimento próximo</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -191,30 +249,49 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* DEPOIMENTOS */}
+      {/* NÚMEROS REAIS */}
       <section className="py-20 px-4 bg-indigo-600 text-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Quem já usa o Recebi</h2>
-            <p className="text-indigo-200">Profissionais que pararam de perder dinheiro</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Números reais da plataforma</h2>
+            <p className="text-indigo-200">Dados atualizados em tempo real do nosso banco de dados</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { nome: 'Dra. Ana Paula', profissao: 'Psicóloga', texto: 'Antes eu perdia uns R$ 800 por mês de pacientes que atrasavam. Hoje o Recebi cobra por mim e eu nem preciso me envolver.' },
-              { nome: 'Carlos Henrique', profissao: 'Personal Trainer', texto: 'Tinha alunos que sumiam sem pagar. Com o lembrete automático do WhatsApp, a inadimplência caiu 90%.' },
-              { nome: 'Dra. Fernanda', profissao: 'Nutricionista', texto: 'O recibo automático me salvou. Meus pacientes adoram receber pelo WhatsApp e eu economizo horas por semana.' },
-            ].map((item) => (
-              <div key={item.nome} className="rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 p-6">
-                <div className="flex mb-3">
-                  {[1,2,3,4,5].map((s) => <Star key={s} className="h-4 w-4 text-yellow-400 fill-yellow-400" />)}
-                </div>
-                <p className="text-white/90 text-sm leading-relaxed mb-4">"{item.texto}"</p>
-                <div>
-                  <p className="font-semibold text-white text-sm">{item.nome}</p>
-                  <p className="text-indigo-300 text-xs">{item.profissao}</p>
+            <div className="rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 p-8 text-center">
+              <div className="flex justify-center mb-4">
+                <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-white" />
                 </div>
               </div>
-            ))}
+              <p className="text-4xl font-bold text-white mb-2">
+                {stats.profissionais > 0 ? stats.profissionais.toLocaleString('pt-BR') : '—'}
+              </p>
+              <p className="text-indigo-200 text-sm">Profissionais cadastrados</p>
+            </div>
+            <div className="rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 p-8 text-center">
+              <div className="flex justify-center mb-4">
+                <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <p className="text-4xl font-bold text-white mb-2">
+                {stats.clientes > 0 ? stats.clientes.toLocaleString('pt-BR') : '—'}
+              </p>
+              <p className="text-indigo-200 text-sm">Clientes ativos gerenciados</p>
+            </div>
+            <div className="rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 p-8 text-center">
+              <div className="flex justify-center mb-4">
+                <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
+                  <CreditCard className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <p className="text-4xl font-bold text-white mb-2">
+                {stats.processado > 0
+                  ? stats.processado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+                  : '—'}
+              </p>
+              <p className="text-indigo-200 text-sm">Total processado em pagamentos</p>
+            </div>
           </div>
         </div>
       </section>
@@ -349,7 +426,7 @@ export default function LandingPage() {
               <a href="#precos" className="hover:text-white transition-colors">Preços</a>
               <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
             </div>
-            <p className="text-sm text-gray-500">© 2026 Recebi · Desenvolvido pela PrimeTI</p>
+            <p className="text-sm text-gray-500">© {anoAtual} Recebi · Desenvolvido pela PrimeTI</p>
           </div>
         </div>
       </footer>

@@ -65,8 +65,10 @@ export async function POST(req: NextRequest) {
           reciboUrl,
           profissionalNome: cobranca.user.empresa ?? cobranca.user.nome,
         })
-      } catch {
-        // WhatsApp não configurado
+      } catch (err) {
+        if (process.env.EVOLUTION_API_URL) {
+          console.error('[webhook/asaas] Falha ao enviar confirmação WhatsApp para cobrança', cobranca.id, ':', err)
+        }
       }
     }
   }

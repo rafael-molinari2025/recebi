@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { randomBytes } from 'crypto'
+import { addYears } from 'date-fns'
 import { prisma } from '@/lib/prisma'
 import { getAuthUser } from '@/lib/auth'
 
@@ -70,6 +71,7 @@ export async function POST(req: NextRequest) {
         diaVencimento: body.diaVencimento,
         observacoes: body.observacoes || null,
         portalToken,
+        portalTokenExpiresAt: addYears(new Date(), 1),
       },
     })
     return NextResponse.json({ ...cliente, valorHonorario: Number(cliente.valorHonorario) }, { status: 201 })

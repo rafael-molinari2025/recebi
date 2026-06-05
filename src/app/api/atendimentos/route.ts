@@ -39,9 +39,9 @@ export async function POST(req: NextRequest) {
   const body = parsed.data
 
   const cliente = await prisma.cliente.findFirst({
-    where: { id: body.clienteId, userId: user.id },
+    where: { id: body.clienteId, userId: user.id, ativo: true },
   })
-  if (!cliente) return NextResponse.json({ error: 'Cliente não encontrado' }, { status: 404 })
+  if (!cliente) return NextResponse.json({ error: 'Cliente não encontrado ou inativo' }, { status: 404 })
 
   try {
     const atendimento = await prisma.atendimento.create({
@@ -84,8 +84,11 @@ export async function POST(req: NextRequest) {
         asaasId = cobrancaAsaas.id
         linkPagamento = cobrancaAsaas.invoiceUrl
         pixCopiaECola = cobrancaAsaas.pixCopiaECola
-      } catch {
-        // Asaas não configurado
+      } catch (err) {
+        // Silencioso apenas quando a chave não está configurada; caso contrário loga o erro
+        if (process.env.ASAAS_API_KEY) {
+          console.error('[POST /api/atendimentos] Falha ao criar cobrança no Asaas:', err)
+        }
       }
 
       await prisma.cobranca.create({
