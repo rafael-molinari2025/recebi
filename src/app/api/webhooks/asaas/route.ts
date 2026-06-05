@@ -48,26 +48,29 @@ export async function POST(req: NextRequest) {
       include: { cliente: true, user: true },
     })
 
-    if (cobranca && cobranca.status !== 'PAGO') {
+    if (cobranca) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://recebi-khaki.vercel.app'
       const reciboUrl = `${appUrl}/api/recibo/${cobranca.id}`
 
-      await prisma.cobranca.update({
-        where: { id: cobranca.id },
+      // Atualização atômica: só marca PAGO se ainda não estava pago (evita race condition com webhooks duplicados)
+      const atualizado = await prisma.cobranca.updateMany({
+        where: { id: cobranca.id, status: { not: 'PAGO' } },
         data: { status: 'PAGO', pagamentoEm: new Date(), reciboGerado: true, reciboUrl },
       })
 
-      try {
-        await enviarConfirmacaoPagamento({
-          nome: cobranca.cliente.nome,
-          telefone: cobranca.cliente.telefone,
-          valor: Number(cobranca.valor),
-          reciboUrl,
-          profissionalNome: cobranca.user.empresa ?? cobranca.user.nome,
-        })
-      } catch (err) {
-        if (process.env.EVOLUTION_API_URL) {
-          console.error('[webhook/asaas] Falha ao enviar confirmação WhatsApp para cobrança', cobranca.id, ':', err)
+      if (atualizado.count > 0) {
+        try {
+          await enviarConfirmacaoPagamento({
+            nome: cobranca.cliente.nome,
+            telefone: cobranca.cliente.telefone,
+            valor: Number(cobranca.valor),
+            reciboUrl,
+            profissionalNome: cobranca.user.empresa ?? cobranca.user.nome,
+          })
+        } catch (err) {
+          if (process.env.EVOLUTION_API_URL) {
+            console.error('[webhook/asaas] Falha ao enviar confirmação WhatsApp para cobrança', cobranca.id, ':', err)
+          }
         }
       }
     }

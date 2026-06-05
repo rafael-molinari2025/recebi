@@ -77,7 +77,7 @@ export function MonitorView() {
 
   useEffect(() => {
     buscar()
-    const interval = setInterval(buscar, 60_000) // atualiza a cada 1 min
+    const interval = setInterval(buscar, 600_000) // atualiza a cada 10 min
     return () => clearInterval(interval)
   }, [buscar])
 
@@ -99,7 +99,7 @@ export function MonitorView() {
           <CardContent className="py-12 text-center">
             <Clock className="h-10 w-10 text-gray-300 mx-auto mb-3" />
             <p className="text-sm text-gray-500">Aguardando primeira execução do cron de monitoramento.</p>
-            <p className="text-xs text-gray-400 mt-1">O sistema verificará automaticamente a cada 5 minutos.</p>
+            <p className="text-xs text-gray-400 mt-1">O sistema verificará automaticamente uma vez por dia (6h UTC).</p>
           </CardContent>
         </Card>
       </div>

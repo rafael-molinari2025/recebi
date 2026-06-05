@@ -5,6 +5,9 @@ import { diasAtraso } from '@/lib/utils'
 import { addDays, startOfDay } from 'date-fns'
 
 // Rota para ser chamada por um cron job (ex: Vercel Cron, Railway Cron)
+// Vercel Cron envia GET — reutiliza o mesmo handler
+export { POST as GET }
+
 export async function POST(req: NextRequest) {
   // Validar secret do cron — bloqueia se CRON_SECRET não estiver configurado
   const cronSecret = process.env.CRON_SECRET
