@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, Calendar, CreditCard, Settings, LogOut, Wallet, CalendarDays, FileText, UsersRound, Menu, X, Activity, BarChart2, UserCog } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, CreditCard, Settings, LogOut, Wallet, CalendarDays, FileText, UsersRound, Menu, X, Activity, BarChart2, UserCog, BookOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -18,6 +18,7 @@ const navItems = [
   { href: '/relatorios', label: 'Relatórios', icon: FileText },
   { href: '/equipe', label: 'Equipe', icon: UsersRound },
   { href: '/configuracoes', label: 'Configurações', icon: Settings },
+  { href: '/manual', label: 'Manual', icon: BookOpen },
 ]
 
 const adminNavItems = [
