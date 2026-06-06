@@ -60,6 +60,7 @@ export function MonitorView() {
   const [logs, setLogs] = useState<MonitorLog[]>([])
   const [resumo, setResumo] = useState<Resumo | null>(null)
   const [carregando, setCarregando] = useState(true)
+  const [verificando, setVerificando] = useState(false)
   const [atualizadoEm, setAtualizadoEm] = useState<Date | null>(null)
 
   const buscar = useCallback(async () => {
@@ -74,6 +75,16 @@ export function MonitorView() {
       setCarregando(false)
     }
   }, [])
+
+  async function verificarAgora() {
+    setVerificando(true)
+    try {
+      await fetch('/api/monitor/check', { method: 'POST' })
+      await buscar()
+    } finally {
+      setVerificando(false)
+    }
+  }
 
   useEffect(() => {
     buscar()
@@ -98,8 +109,16 @@ export function MonitorView() {
         <Card>
           <CardContent className="py-12 text-center">
             <Clock className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm text-gray-500">Aguardando primeira execução do cron de monitoramento.</p>
-            <p className="text-xs text-gray-400 mt-1">O sistema verificará automaticamente uma vez por dia (6h UTC).</p>
+            <p className="text-sm text-gray-500">Nenhuma verificação registrada ainda.</p>
+            <p className="text-xs text-gray-400 mt-1">O cron executa automaticamente uma vez por dia (6h UTC).</p>
+            <button
+              onClick={verificarAgora}
+              disabled={verificando}
+              className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              <RefreshCw className={`h-4 w-4 ${verificando ? 'animate-spin' : ''}`} />
+              {verificando ? 'Verificando...' : 'Verificar Agora'}
+            </button>
           </CardContent>
         </Card>
       </div>
@@ -206,13 +225,23 @@ export function MonitorView() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-sm">Histórico de Verificações</CardTitle>
-          <button
-            onClick={buscar}
-            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            Atualizar
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={verificarAgora}
+              disabled={verificando}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white rounded-md font-medium transition-colors"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${verificando ? 'animate-spin' : ''}`} />
+              {verificando ? 'Verificando...' : 'Verificar Agora'}
+            </button>
+            <button
+              onClick={buscar}
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Atualizar
+            </button>
+          </div>
         </CardHeader>
         <CardContent>
           {/* Mini gráfico de barras de status */}
