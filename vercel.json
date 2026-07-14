@@ -1,0 +1,20 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/monitor",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/lembretes",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/recorrencia",
+      "schedule": "0 6 1 * *"
+    },
+    {
+      "path": "/api/backup-email",
+      "schedule": "0 7 1 * *"
+    }
+  ]
+}
