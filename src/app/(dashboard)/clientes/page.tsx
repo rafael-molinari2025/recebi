@@ -1,0 +1,46 @@
+import { prisma } from '@/lib/prisma'
+import { getSupabaseUser, getPrismaUser } from '@/lib/auth'
+import { Header } from '@/components/layout/header'
+import { ClientesView } from './clientes-view'
+
+async function getClientes(supabaseId: string) {
+  const user = await getPrismaUser(supabaseId)
+  if (!user) return []
+
+  return prisma.cliente.findMany({
+    where: { userId: user.id },
+    include: {
+      _count: { select: { atendimentos: true, cobrancas: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  })
+}
+
+export default async function ClientesPage() {
+  const user = await getSupabaseUser()
+  const clientes = user ? await getClientes(user.id) : []
+
+  const clientesSerializados = clientes.map((c) => ({
+    id: c.id,
+    userId: c.userId,
+    nome: c.nome,
+    cpfCnpj: c.cpfCnpj ?? undefined,
+    telefone: c.telefone,
+    email: c.email ?? undefined,
+    tipoAtendimento: c.tipoAtendimento,
+    valorHonorario: isNaN(Number(c.valorHonorario)) ? 0 : Number(c.valorHonorario),
+    diaVencimento: c.diaVencimento,
+    ativo: c.ativo,
+    observacoes: c.observacoes ?? undefined,
+    createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString(),
+    _count: c._count,
+  }))
+
+
+  return (
+    <div>
+      <Header title="Clientes" subtitle="Gerencie seus clientes e honorários" />
+      <ClientesView clientes={clientesSerializados} />
+    </div>
+  )
+}

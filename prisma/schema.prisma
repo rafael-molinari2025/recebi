@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  supabaseId    String    @unique
+  nome          String
+  email         String    @unique
+  telefone      String?
+  profissao     String?
+  empresa       String?
+  cnpj          String?   // CNPJ da empresa (disponível nos planos PRO e CLÍNICA)
+  asaasId       String?   // ID do profissional no Asaas
+  plano         Plano     @default(STARTER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  clientes          Cliente[]
+  atendimentos      Atendimento[]
+  cobrancas         Cobranca[]
+  membrosClinica    MembroClinica[] @relation("clinicaMembers")
+  membroEm          MembroClinica[] @relation("membroOf")
+
+  @@map("users")
+}
+
+model Cliente {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  nome            String
+  cpfCnpj         String?         // CPF ou CNPJ (necessário para Asaas)
+  telefone        String          // WhatsApp
+  email           String?
+  tipoAtendimento TipoAtendimento
+  valorHonorario  Decimal         @db.Decimal(10, 2)
+  diaVencimento   Int             // 1–28
+  ativo           Boolean         @default(true)
+  asaasId         String?         // ID do cliente no Asaas
+  portalToken          String?   @unique // Token seguro para portal público
+  portalTokenExpiresAt DateTime?          // Expira após 1 ano sem acesso
+  observacoes          String?
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  atendimentos    Atendimento[]
+  cobrancas       Cobranca[]
+
+  @@index([userId])
+  @@index([asaasId])
+  @@map("clientes")
+}
+
+model Atendimento {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clienteId   String
+  cliente     Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  data        DateTime
+  descricao   String?
+  notas       String?   // Anotações privadas (não aparecem no recibo)
+  valor       Decimal   @db.Decimal(10, 2)
+  gerarCobranca Boolean @default(true)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  cobranca    Cobranca?
+
+  @@index([userId])
+  @@index([clienteId])
+  @@map("atendimentos")
+}
+
+model Cobranca {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clienteId       String
+  cliente         Cliente         @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  atendimentoId   String?         @unique
+  atendimento     Atendimento?    @relation(fields: [atendimentoId], references: [id], onDelete: SetNull)
+
+  valor           Decimal         @db.Decimal(10, 2)
+  vencimento      DateTime
+  status          StatusCobranca  @default(PENDENTE)
+  descricao       String?
+
+  // Asaas
+  asaasId         String?         // ID da cobrança no Asaas
+  linkPagamento   String?
+  pixCopiaECola   String?
+  boletoUrl       String?
+
+  // Controle de lembretes
+  lembreteEnviado3d   Boolean   @default(false)
+  lembreteEnviado1d   Boolean   @default(false)
+  lembreteAtraso1d    Boolean   @default(false)
+  lembreteAtraso7d    Boolean   @default(false)
+
+  // Recibo
+  reciboGerado    Boolean     @default(false)
+  reciboUrl       String?
+  pagamentoEm     DateTime?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([clienteId])
+  @@index([asaasId])
+  @@map("cobrancas")
+}
+
+model MembroClinica {
+  id          String   @id @default(cuid())
+  clinicaId   String   // userId do dono da clínica
+  clinica     User     @relation("clinicaMembers", fields: [clinicaId], references: [id], onDelete: Cascade)
+  membroId    String   // userId do membro
+  membro      User     @relation("membroOf", fields: [membroId], references: [id], onDelete: Cascade)
+  email       String   // email do convite
+  status      String   @default("PENDENTE") // PENDENTE | ATIVO
+  createdAt   DateTime @default(now())
+
+  @@unique([clinicaId, email])
+  @@map("membros_clinica")
+}
+
+enum Plano {
+  STARTER   // gratuito, até 5 clientes
+  PRO       // R$ 47/mês, até 50 clientes
+  CLINICA   // R$ 97/mês, até 200 clientes + 3 membros
+}
+
+enum TipoAtendimento {
+  SESSAO_AVULSA
+  PACOTE_MENSAL
+  PLANO_FIXO
+}
+
+enum StatusCobranca {
+  PENDENTE
+  PAGO
+  ATRASADO
+  CANCELADO
+  ESTORNADO
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  pagina    String
+  sessionId String?
+
+  @@index([createdAt])
+  @@index([pagina])
+  @@map("page_views")
+}
+
+model MonitorLog {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  status        String   // OK | DEGRADADO | FALHA
+  dbOk          Boolean
+  dbLatencyMs   Int?
+  asaasOk       Boolean?
+  whatsappOk    Boolean?
+  corrigidas    Int      @default(0) // cobranças auto-corrigidas nesta execução
+  alertaEnviado Boolean  @default(false)
+  detalhes      String?  // JSON com mensagens de erro por componente
+
+  @@index([createdAt])
+  @@map("monitor_logs")
+}
