@@ -33,8 +33,8 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
     if (!result) return NextResponse.json({ error: 'Não encontrado' }, { status: 404 })
     cobranca = result
-  } catch (e: any) {
-    if (e?.message === 'JA_PAGO') {
+  } catch (e) {
+    if (e instanceof Error && e.message === 'JA_PAGO') {
       return NextResponse.json({ error: 'Cobrança já confirmada como paga.' }, { status: 409 })
     }
     throw e

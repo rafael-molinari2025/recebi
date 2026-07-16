@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, FileDown } from 'lucide-react'
+import { FileDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { NotificationCenter } from './notification-center'
 

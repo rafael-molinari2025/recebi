@@ -18,7 +18,7 @@ export default async function EquipePage() {
   return (
     <div>
       <Header title="Equipe" subtitle="Gerencie os membros da sua clínica" />
-      <EquipeView isClinica={isClinica} membrosIniciais={membros as any} />
+      <EquipeView isClinica={isClinica} membrosIniciais={membros} />
     </div>
   )
 }

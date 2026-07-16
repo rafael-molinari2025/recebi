@@ -15,7 +15,10 @@ import { toast } from '@/hooks/use-toast'
 import type { Atendimento } from '@/types'
 
 interface ClienteSimples { id: string; nome: string; valorHonorario: number }
-interface Props { atendimentos: Atendimento[]; clientes: ClienteSimples[] }
+interface AtendimentoComCliente extends Omit<Atendimento, 'cliente'> {
+  cliente?: { id: string; nome: string }
+}
+interface Props { atendimentos: AtendimentoComCliente[]; clientes: ClienteSimples[] }
 
 const formVazio = () => ({
   clienteId: '',
@@ -29,7 +32,7 @@ const formVazio = () => ({
 export function AtendimentosView({ atendimentos, clientes }: Props) {
   const router = useRouter()
   const [formOpen, setFormOpen] = useState(false)
-  const [editando, setEditando] = useState<Atendimento | null>(null)
+  const [editando, setEditando] = useState<AtendimentoComCliente | null>(null)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState(formVazio())
 
@@ -39,7 +42,7 @@ export function AtendimentosView({ atendimentos, clientes }: Props) {
     setFormOpen(true)
   }
 
-  function abrirEditar(a: Atendimento) {
+  function abrirEditar(a: AtendimentoComCliente) {
     setEditando(a)
     setForm({
       clienteId: a.clienteId,
@@ -127,7 +130,7 @@ export function AtendimentosView({ atendimentos, clientes }: Props) {
                   <Calendar className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 dark:text-white">{(a as any).cliente?.nome ?? '—'}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{a.cliente?.nome ?? '—'}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">{formatDate(a.data)}{a.descricao ? ` • ${a.descricao}` : ''}</p>
                   {a.notas && <p className="text-xs text-indigo-500 dark:text-indigo-400 mt-0.5 truncate">📝 {a.notas}</p>}
                 </div>

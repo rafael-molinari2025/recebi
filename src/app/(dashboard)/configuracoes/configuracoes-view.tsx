@@ -31,6 +31,8 @@ function WhatsAppCard() {
   }, [])
 
   useEffect(() => {
+    // checkStatus é assíncrona: o setState ocorre após o await, não durante o commit do efeito.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkStatus()
     const interval = setInterval(checkStatus, 5000)
     return () => clearInterval(interval)
@@ -107,7 +109,7 @@ function WhatsAppCard() {
   )
 }
 
-export function ConfiguracoesView({ user, integracoes }: { user: User | null; integracoes: Integracoes }) {
+export function ConfiguracoesView({ user, integracoes, isAdmin }: { user: User | null; integracoes: Integracoes; isAdmin: boolean }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const isPro = user?.plano === 'PRO' || user?.plano === 'CLINICA'
@@ -252,7 +254,7 @@ export function ConfiguracoesView({ user, integracoes }: { user: User | null; in
       </Card>
 
       {/* WhatsApp */}
-      <WhatsAppCard />
+      {isAdmin && <WhatsAppCard />}
 
       {/* Integrações */}
       <Card>

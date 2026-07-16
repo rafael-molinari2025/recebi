@@ -54,7 +54,7 @@ export function ClienteForm({ open, onClose, cliente }: ClienteFormProps) {
     if (open) {
       form.reset({
         nome: cliente?.nome ?? '',
-        cpfCnpj: (cliente as any)?.cpfCnpj ?? '',
+        cpfCnpj: cliente?.cpfCnpj ?? '',
         telefone: cliente?.telefone ?? '',
         email: cliente?.email ?? '',
         tipoAtendimento: cliente?.tipoAtendimento ?? 'SESSAO_AVULSA',
@@ -91,7 +91,7 @@ export function ClienteForm({ open, onClose, cliente }: ClienteFormProps) {
       toast({ title: cliente ? 'Cliente atualizado!' : 'Cliente cadastrado!', variant: 'success' })
       onClose()
       router.refresh()
-    } catch (error) {
+    } catch {
       toast({ title: 'Erro de Conexão', description: 'Não foi possível se conectar ao servidor.', variant: 'destructive' })
     }
   }
@@ -134,7 +134,7 @@ export function ClienteForm({ open, onClose, cliente }: ClienteFormProps) {
               <Label>Tipo de atendimento *</Label>
               <Select
                 value={form.watch('tipoAtendimento')}
-                onValueChange={(v) => form.setValue('tipoAtendimento', v as any)}
+                onValueChange={(v) => form.setValue('tipoAtendimento', v as ClienteFormValues['tipoAtendimento'])}
               >
                 <SelectTrigger>
                   <SelectValue />

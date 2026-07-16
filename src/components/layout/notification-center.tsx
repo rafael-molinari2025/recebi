@@ -22,6 +22,8 @@ export function NotificationCenter() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    // localStorage só existe no cliente; leitura precisa ocorrer pós-montagem para evitar mismatch de hidratação.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLidaAte(localStorage.getItem(LS_KEY) ?? '')
   }, [])
 
@@ -36,6 +38,8 @@ export function NotificationCenter() {
   }, [])
 
   useEffect(() => {
+    // buscar é assíncrona: o setState ocorre após o await, não durante o commit do efeito.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     buscar()
   }, [buscar])
 

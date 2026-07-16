@@ -1,6 +1,6 @@
 'use client'
 
-import { Download, BookOpen, LayoutDashboard, Users, Calendar, CreditCard, CalendarDays, FileText, Settings, UsersRound, Wallet, Bell, QrCode, ChevronRight } from 'lucide-react'
+import { Download, BookOpen, LayoutDashboard, Users, Calendar, CreditCard, CalendarDays, FileText, Settings, UsersRound, Wallet, Bell, ChevronRight } from 'lucide-react'
 
 export function ManualView() {
   function handlePrint() {
@@ -255,7 +255,7 @@ export function ManualView() {
                   <li><strong>Cliente</strong> (obrigatório) — selecione da lista de ativos; o honorário é preenchido automaticamente</li>
                   <li><strong>Data</strong> (obrigatório) — data em que o atendimento ocorreu</li>
                   <li><strong>Valor (R$)</strong> — preenchido automaticamente pelo honorário do cliente</li>
-                  <li><strong>Descrição</strong> — ex.: "Sessão de psicoterapia", "Aula de treino"</li>
+                  <li><strong>Descrição</strong> — ex.: &ldquo;Sessão de psicoterapia&rdquo;, &ldquo;Aula de treino&rdquo;</li>
                   <li><strong>Anotações privadas</strong> — notas clínicas; não aparecem nos recibos</li>
                   <li><strong>Gerar cobrança</strong> — ativado por padrão; cria automaticamente uma cobrança vinculada</li>
                 </ul>

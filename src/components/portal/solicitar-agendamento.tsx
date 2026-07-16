@@ -2,8 +2,6 @@
 
 import { useState } from 'react'
 import { Calendar } from 'lucide-react'
-import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
 
 interface SolicitarAgendamentoProps {
   token: string
@@ -32,7 +30,7 @@ export function SolicitarAgendamento({ token }: SolicitarAgendamentoProps) {
       }
       
       setSucesso(true)
-    } catch (err) {
+    } catch {
       setErro('Não foi possível agendar. Tente novamente.')
     } finally {
       setLoading(false)

@@ -51,7 +51,7 @@ export default async function CobrancasPage() {
   return (
     <div>
       <Header title="Cobranças" subtitle="Gerencie pagamentos e envie lembretes" />
-      <CobrancasView cobrancas={serializadas as any} />
+      <CobrancasView cobrancas={serializadas} />
     </div>
   )
 }

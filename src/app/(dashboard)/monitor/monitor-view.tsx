@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { formatDate } from '@/lib/utils'
 import { RefreshCw, Database, Zap, MessageSquare, CheckCircle2, XCircle, AlertTriangle, Clock, TrendingUp, Wrench } from 'lucide-react'
 

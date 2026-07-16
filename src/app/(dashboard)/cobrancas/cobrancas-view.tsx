@@ -58,7 +58,7 @@ export function CobrancasView({ cobrancas }: { cobrancas: CobrancaComCliente[] }
         const err = await res.json().catch(() => ({}))
         toast({ title: 'Erro', description: err.message || 'Erro desconhecido', variant: 'destructive' })
       }
-    } catch (err) {
+    } catch {
       toast({ title: 'Erro de Conexão', description: 'Não foi possível se conectar.', variant: 'destructive' })
     } finally {
       setEditLoading(false)

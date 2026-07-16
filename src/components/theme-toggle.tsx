@@ -6,11 +6,16 @@ import { useTheme } from 'next-themes'
 
 import { Button } from '@/components/ui/button'
 
+const subscribeNoop = () => () => {}
+
+// Detecta hidratação concluída sem useEffect+setState (evita cascata de renders).
+function useMounted() {
+  return React.useSyncExternalStore(subscribeNoop, () => true, () => false)
+}
+
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
-
-  React.useEffect(() => { setMounted(true) }, [])
+  const mounted = useMounted()
 
   const isDark = mounted && resolvedTheme === 'dark'
 

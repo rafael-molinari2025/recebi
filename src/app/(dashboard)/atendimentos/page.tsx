@@ -26,6 +26,7 @@ async function getData(supabaseId: string) {
       ...a,
       valor: Number(a.valor),
       descricao: a.descricao ?? undefined,
+      notas: a.notas ?? undefined,
       data: a.data.toISOString(),
       createdAt: a.createdAt.toISOString(),
       updatedAt: a.updatedAt.toISOString(),
@@ -41,7 +42,7 @@ export default async function AtendimentosPage() {
   return (
     <div>
       <Header title="Atendimentos" subtitle="Registre sessões e gere cobranças automaticamente" />
-      <AtendimentosView atendimentos={atendimentos as any} clientes={clientes} />
+      <AtendimentosView atendimentos={atendimentos} clientes={clientes} />
     </div>
   )
 }

@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server'
-import { getAuthUser } from '@/lib/auth'
+import { getSupabaseUser } from '@/lib/auth'
 
 export async function POST() {
-  const user = await getAuthUser()
-  if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  const user = await getSupabaseUser()
+  const adminEmail = process.env.ADMIN_EMAIL
+
+  if (!user || !adminEmail || user.email !== adminEmail) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
 
   const url = process.env.EVOLUTION_API_URL
   const key = process.env.EVOLUTION_API_KEY

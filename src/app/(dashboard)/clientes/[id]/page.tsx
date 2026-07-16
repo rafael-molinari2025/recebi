@@ -42,13 +42,16 @@ async function getData(supabaseId: string, clienteId: string) {
       ...cliente,
       valorHonorario: Number(cliente.valorHonorario),
       email: cliente.email ?? undefined,
+      cpfCnpj: cliente.cpfCnpj ?? undefined,
       observacoes: cliente.observacoes ?? undefined,
+      portalToken: cliente.portalToken ?? undefined,
       createdAt: cliente.createdAt.toISOString(),
       updatedAt: cliente.updatedAt.toISOString(),
       atendimentos: cliente.atendimentos.map((a) => ({
         ...a,
         valor: Number(a.valor),
         descricao: a.descricao ?? undefined,
+        notas: a.notas ?? undefined,
         data: a.data.toISOString(),
         createdAt: a.createdAt.toISOString(),
         updatedAt: a.updatedAt.toISOString(),
@@ -64,6 +67,12 @@ async function getData(supabaseId: string, clienteId: string) {
         vencimento: c.vencimento.toISOString(),
         descricao: c.descricao ?? undefined,
         pagamentoEm: c.pagamentoEm?.toISOString() ?? undefined,
+        atendimentoId: c.atendimentoId ?? undefined,
+        asaasId: c.asaasId ?? undefined,
+        linkPagamento: c.linkPagamento ?? undefined,
+        pixCopiaECola: c.pixCopiaECola ?? undefined,
+        boletoUrl: c.boletoUrl ?? undefined,
+        reciboUrl: c.reciboUrl ?? undefined,
         createdAt: c.createdAt.toISOString(),
         updatedAt: c.updatedAt.toISOString(),
       })),
@@ -91,7 +100,7 @@ export default async function ClienteDetalhePage({
         title={data.cliente.nome}
         subtitle={`Perfil completo do cliente`}
       />
-      <ClienteDetalheView cliente={data.cliente as any} stats={data.stats} />
+      <ClienteDetalheView cliente={data.cliente} stats={data.stats} />
     </div>
   )
 }

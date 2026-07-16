@@ -22,7 +22,7 @@ export function EquipeView({ isClinica, membrosIniciais }: { isClinica: boolean,
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
-  const [membros, setMembros] = useState(membrosIniciais)
+  const membros = membrosIniciais
 
   if (!isClinica) {
     return (
@@ -68,7 +68,7 @@ export function EquipeView({ isClinica, membrosIniciais }: { isClinica: boolean,
       } else {
         toast({ title: data.message || 'Erro ao convidar membro', variant: 'destructive' })
       }
-    } catch (err) {
+    } catch {
       toast({ title: 'Erro na requisição', variant: 'destructive' })
     } finally {
       setLoading(false)

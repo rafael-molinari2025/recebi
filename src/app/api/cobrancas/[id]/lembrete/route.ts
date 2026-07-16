@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { isAxiosError } from 'axios'
 import { prisma } from '@/lib/prisma'
 import { enviarLembreteVencimento, enviarAvisoAtraso, whatsappConfigurado } from '@/lib/whatsapp'
 import { diasAtraso } from '@/lib/utils'
@@ -43,9 +44,9 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
         profissionalNome: user.empresa ?? user.nome,
       })
     }
-  } catch (err: any) {
-    const zapiStatus = err?.response?.status
-    console.error('[lembrete] Erro ao enviar WhatsApp. Status:', zapiStatus, err?.response?.data)
+  } catch (err) {
+    const zapiStatus = isAxiosError(err) ? err.response?.status : undefined
+    console.error('[lembrete] Erro ao enviar WhatsApp. Status:', zapiStatus, isAxiosError(err) ? err.response?.data : err)
     const mensagem = zapiStatus === 401
       ? 'Chave da Evolution API inválida. Verifique EVOLUTION_API_KEY no Vercel.'
       : zapiStatus === 404

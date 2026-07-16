@@ -11,7 +11,9 @@ import type { Cliente, Atendimento, Cobranca } from '@/types'
 
 interface ClienteDetalhado extends Cliente {
   portalToken?: string | null
-  atendimentos: (Atendimento & { cobranca?: Cobranca })[]
+  atendimentos: (Atendimento & {
+    cobranca?: Pick<Cobranca, 'id' | 'status' | 'valor' | 'vencimento'> | null
+  })[]
   cobrancas: Cobranca[]
 }
 
@@ -32,7 +34,6 @@ export function ClienteDetalheView({ cliente, stats }: Props) {
         </Button>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={() => {
-            const url = `${window.location.origin}/portal/${cliente.id}`
             const portalPath = cliente.portalToken ? `/portal/${cliente.portalToken}` : null
             if (!portalPath) { toast({ title: 'Portal não disponível', description: 'Recadastre o cliente para gerar o link.', variant: 'destructive' }); return }
             navigator.clipboard.writeText(`${window.location.origin}${portalPath}`)
@@ -71,7 +72,7 @@ export function ClienteDetalheView({ cliente, stats }: Props) {
                 <span className="flex items-center gap-1"><Calendar className="h-4 w-4" />Vence dia {cliente.diaVencimento}</span>
               </div>
               {cliente.observacoes && (
-                <p className="text-sm text-gray-500 mt-1 italic">"{cliente.observacoes}"</p>
+                <p className="text-sm text-gray-500 mt-1 italic">&ldquo;{cliente.observacoes}&rdquo;</p>
               )}
             </div>
             <div className="text-right">

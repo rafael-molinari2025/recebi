@@ -1,4 +1,4 @@
-import { DollarSign, TrendingDown, Clock, Users, FileDown } from 'lucide-react'
+import { DollarSign, TrendingDown, Clock, Users } from 'lucide-react'
 
 export const revalidate = 60
 import { Header } from '@/components/layout/header'

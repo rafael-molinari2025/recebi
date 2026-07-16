@@ -28,10 +28,12 @@ export default async function ConfiguracoesPage() {
     ),
   }
 
+  const isAdmin = !!authUser?.email && authUser.email === process.env.ADMIN_EMAIL
+
   return (
     <div>
       <Header title="Configurações" subtitle="Gerencie sua conta e preferências" />
-      <ConfiguracoesView user={userData} integracoes={integracoes} />
+      <ConfiguracoesView user={userData} integracoes={integracoes} isAdmin={isAdmin} />
     </div>
   )
 }
